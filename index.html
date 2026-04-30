@@ -946,14 +946,27 @@ footer {
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">취업현황</h2>
-        <!-- 연도 필터 -->
-        <select id="statsYearFilter" class="filter-btn"
-          style="padding:8px 14px;border-radius:8px;cursor:pointer"
-          onchange="renderStats()">
-        </select>
+        <div style="display:flex;align-items:center;gap:10px">
+          <!-- 관리자/담임교사 전용 탭 -->
+          <div id="statsModeTab" style="display:none;background:var(--gray-100);border-radius:8px;padding:3px;display:flex;gap:2px">
+            <button id="smtab0" onclick="switchStatsMode(0)"
+              style="padding:6px 14px;border:none;border-radius:6px;background:var(--white);font-size:12px;font-weight:600;color:var(--primary);cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:var(--shadow-sm)">
+              📊 현황 보기
+            </button>
+            <button id="smtab1" onclick="switchStatsMode(1)"
+              style="padding:6px 14px;border:none;border-radius:6px;background:transparent;font-size:12px;font-weight:500;color:var(--gray-600);cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+              ✏️ 올해 관리
+            </button>
+          </div>
+          <select id="statsYearFilter" class="filter-btn"
+            style="padding:8px 14px;border-radius:8px;cursor:pointer"
+            onchange="renderStats()">
+          </select>
+        </div>
       </div>
 
-      <div class="stats-row" style="grid-template-columns:repeat(5,1fr)">
+      <!-- 현황 보기 섹션 -->
+      <div id="statsModeView">
         <div class="stat-box blue">
           <div class="stat-box-num">142</div>
           <div class="stat-box-label">총 취업자</div>
@@ -1109,6 +1122,110 @@ footer {
 
         </div>
       </div>
+
+      </div><!-- statsModeView 닫기 -->
+
+      <!-- ── 올해 관리 섹션 (관리자/담임교사 전용) ── -->
+      <div id="statsModeManage" style="display:none">
+
+        <!-- 관리자: 전체 학과 탭 / 담임교사: 본인 학과만 -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px">
+            <span id="manageRoleDesc"></span>
+          </div>
+          <!-- 학과 탭 (관리자만 전체 표시) -->
+          <div id="manageDeptTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
+        </div>
+
+        <!-- 취업 현황 입력 폼 -->
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:20px;margin-bottom:16px">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            ➕ 취업·진학 정보 입력
+            <span style="font-size:12px;font-weight:400;color:var(--gray-400)">(Google Sheets 연결 후 실제 저장)</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+            <div>
+              <label class="form-label" style="font-size:11px">학생 이름</label>
+              <input class="form-input" id="mgName" type="text" placeholder="홍길동" style="font-size:13px;padding:9px 12px">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">학번</label>
+              <input class="form-input" id="mgStudentId" type="text" placeholder="3101" maxlength="4" style="font-size:13px;padding:9px 12px">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">구분</label>
+              <select class="form-input" id="mgType" style="font-size:13px;padding:9px 12px" onchange="toggleMgFields()">
+                <option value="취업">취업</option>
+                <option value="진학">진학</option>
+                <option value="미취업">미취업</option>
+                <option value="군입대">군입대</option>
+              </select>
+            </div>
+          </div>
+          <!-- 취업 필드 -->
+          <div id="mgJobFields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+            <div>
+              <label class="form-label" style="font-size:11px">취업업체</label>
+              <input class="form-input" id="mgCompany" type="text" placeholder="삼성전자" style="font-size:13px;padding:9px 12px">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">직종</label>
+              <input class="form-input" id="mgJob" type="text" placeholder="반도체 생산기술" style="font-size:13px;padding:9px 12px">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">급여</label>
+              <input class="form-input" id="mgSalary" type="text" placeholder="월 280만원~" style="font-size:13px;padding:9px 12px">
+            </div>
+          </div>
+          <!-- 진학 필드 -->
+          <div id="mgCollegeFields" style="display:none;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+            <div>
+              <label class="form-label" style="font-size:11px">대학교</label>
+              <input class="form-input" id="mgUniv" type="text" placeholder="한국산업기술대" style="font-size:13px;padding:9px 12px">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">학과</label>
+              <input class="form-input" id="mgMajor" type="text" placeholder="전자공학과" style="font-size:13px;padding:9px 12px">
+            </div>
+            <div>
+              <label class="form-label" style="font-size:11px">전형</label>
+              <select class="form-input" id="mgAdmission" style="font-size:13px;padding:9px 12px">
+                <option>특성화고 전형</option>
+                <option>수시</option>
+                <option>정시</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="addMgRecord()"
+            style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+            ➕ 추가
+          </button>
+        </div>
+
+        <!-- 입력된 현황 목록 -->
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:14px;font-weight:700;color:var(--text)" id="mgTableTitle">올해 취업·진로 현황</span>
+            <span style="font-size:12px;color:var(--gray-400)">※ Google Sheets 연결 전 임시 저장</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse">
+              <thead><tr>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">학번</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">구분</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">업체/대학</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">직종/학과</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">삭제</th>
+              </tr></thead>
+              <tbody id="mgRecordTable">
+                <tr><td colspan="6" style="padding:24px;text-align:center;color:var(--gray-400)">입력된 데이터가 없습니다</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- statsModeManage 닫기 -->
 
       <!-- 업체 상세 모달 (취업자 목록) -->
       <div class="modal-overlay" id="companyDetailModal" onclick="if(event.target===this)closeModal('companyDetailModal')">
@@ -1402,6 +1519,7 @@ footer {
         <h2 class="section-title" id="homeroomTitle">우리 반 현황</h2>
         <div style="display:flex;gap:8px">
           <button class="btn-outline" onclick="exportClassExcel()" id="btnExcelExport" style="display:none">📥 엑셀 다운로드</button>
+          <button class="btn-outline" onclick="loadSampleClassData()" style="font-size:13px">🧪 샘플 데이터 보기</button>
           <button class="btn-primary" onclick="document.getElementById('folderInput').click()">📁 생활기록부 폴더 업로드</button>
         </div>
       </div>
@@ -2166,7 +2284,18 @@ function searchJobs() { renderAllJobs(); }
 // 취업현황 렌더
 // ══════════════════════════════
 function renderStats() {
+  buildStatsYearDropdown();
   const isStaff = currentRole === 'admin' || currentRole === 'homeroom';
+
+  // 관리 탭 표시 여부
+  const modeTab = document.getElementById('statsModeTab');
+  if (modeTab) modeTab.style.display = isStaff ? 'flex' : 'none';
+
+  // 현황 보기가 기본
+  if (isStaff && statsMode === 1) {
+    renderManageSection(); return;
+  }
+  switchStatsMode(0);
 
   // 홈 미리보기 테이블
   const homeTable = document.getElementById('homeStatsTable');
@@ -2672,8 +2801,181 @@ function doResetPw() {
 }
 
 // ══════════════════════════════
-// 학과별 상세 취업·진로 샘플 데이터
+// 학급현황 샘플 데이터 테스트
 // ══════════════════════════════
+function loadSampleClassData() {
+  classStudents = SAMPLE_COMPANIES[0].employees.map(e => ({
+    name: e.name,
+    attend: e.attend || [{grade:'1학년',days:190,absent:0,late:0,early:0,miss:0},{grade:'2학년',days:190,absent:0,late:1,early:0,miss:0},{grade:'3학년',days:95,absent:0,late:0,early:0,miss:0}],
+    grades: e.grades || [],
+    certs: e.certs || [],
+    clubs: e.clubs || [],
+    leader: e.leader || [],
+  }));
+  showToast('✅ 샘플 데이터 ' + classStudents.length + '명 로드됨 (테스트용)');
+  document.getElementById('dropZone').style.display = 'none';
+  renderClassData();
+}
+
+// ══════════════════════════════
+// 취업현황 모드 전환 (현황보기/올해관리)
+// ══════════════════════════════
+let statsMode = 0; // 0=현황보기, 1=올해관리
+let mgRecords = []; // 임시 입력 데이터
+let mgCurrentDept = '';
+
+function switchStatsMode(idx) {
+  statsMode = idx;
+  const v = document.getElementById('statsModeView');
+  const m = document.getElementById('statsModeManage');
+  const t0 = document.getElementById('smtab0');
+  const t1 = document.getElementById('smtab1');
+  if (!v||!m) return;
+
+  if (idx === 0) {
+    v.style.display='block'; m.style.display='none';
+    t0.style.background='var(--white)'; t0.style.color='var(--primary)'; t0.style.fontWeight='600'; t0.style.boxShadow='var(--shadow-sm)';
+    t1.style.background='transparent'; t1.style.color='var(--gray-600)'; t1.style.fontWeight='500'; t1.style.boxShadow='none';
+  } else {
+    v.style.display='none'; m.style.display='block';
+    t1.style.background='var(--white)'; t1.style.color='var(--primary)'; t1.style.fontWeight='600'; t1.style.boxShadow='var(--shadow-sm)';
+    t0.style.background='transparent'; t0.style.color='var(--gray-600)'; t0.style.fontWeight='500'; t0.style.boxShadow='none';
+    renderManageSection();
+  }
+}
+
+function renderManageSection() {
+  const isAdmin = currentRole === 'admin';
+  const descEl = document.getElementById('manageRoleDesc');
+  const tabsEl = document.getElementById('manageDeptTabs');
+  const titleEl = document.getElementById('mgTableTitle');
+  if (!descEl) return;
+
+  if (isAdmin) {
+    descEl.innerHTML = '⚙️ <strong>관리자</strong> — 전체 학과 취업·진로 현황을 입력·관리합니다';
+    // 전체 학과 탭
+    const depts = ['전체', ...SAMPLE_STATS.map(s=>s.dept)];
+    tabsEl.innerHTML = depts.map((d,i)=>`
+      <button class="filter-btn ${i===0?'active':''}" onclick="selectMgDept('${d}',this)"
+        style="font-size:12px;padding:5px 12px">${d}</button>`).join('');
+    mgCurrentDept = '';
+  } else {
+    // 담임교사: 본인 학과만
+    const dept = currentUser.dept || '';
+    const code = currentUser.classCode || '';
+    descEl.innerHTML = `👩‍🏫 <strong>담임교사</strong> — ${dept} ${code}반 학생들의 취업·진로 현황을 입력합니다`;
+    tabsEl.innerHTML = `<span style="background:#e8eef7;color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600">${dept} ${code}반</span>`;
+    mgCurrentDept = dept;
+    if(titleEl) titleEl.textContent = `${dept} ${code}반 올해 취업·진로 현황`;
+  }
+  renderMgTable();
+}
+
+function selectMgDept(dept, btn) {
+  document.querySelectorAll('#manageDeptTabs .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  mgCurrentDept = dept === '전체' ? '' : dept;
+  const titleEl = document.getElementById('mgTableTitle');
+  if(titleEl) titleEl.textContent = (mgCurrentDept||'전체') + ' 올해 취업·진로 현황';
+  renderMgTable();
+}
+
+function toggleMgFields() {
+  const type = document.getElementById('mgType').value;
+  const jf = document.getElementById('mgJobFields');
+  const cf = document.getElementById('mgCollegeFields');
+  if (type === '취업') { jf.style.display='grid'; cf.style.display='none'; }
+  else if (type === '진학') { jf.style.display='none'; cf.style.display='grid'; }
+  else { jf.style.display='none'; cf.style.display='none'; }
+}
+
+function addMgRecord() {
+  const name = document.getElementById('mgName').value.trim();
+  const sid  = document.getElementById('mgStudentId').value.trim();
+  const type = document.getElementById('mgType').value;
+  if (!name || !sid) { showToast('⚠️ 이름과 학번을 입력해주세요'); return; }
+
+  const dept = mgCurrentDept || currentUser.dept || '';
+  let record = { name, sid, dept, type, year: new Date().getFullYear() };
+
+  if (type === '취업') {
+    record.company = document.getElementById('mgCompany').value.trim();
+    record.job     = document.getElementById('mgJob').value.trim();
+    record.salary  = document.getElementById('mgSalary').value.trim();
+  } else if (type === '진학') {
+    record.company = document.getElementById('mgUniv').value.trim();
+    record.job     = document.getElementById('mgMajor').value.trim();
+    record.salary  = document.getElementById('mgAdmission').value;
+  }
+
+  mgRecords.push(record);
+  // localStorage 임시 저장
+  try { localStorage.setItem('mgRecords_' + new Date().getFullYear(), JSON.stringify(mgRecords)); } catch(e) {}
+  renderMgTable();
+  showToast('✅ ' + name + ' 학생 정보가 추가되었습니다');
+
+  // 입력 초기화
+  ['mgName','mgStudentId','mgCompany','mgJob','mgSalary','mgUniv','mgMajor'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+}
+
+function deleteMgRecord(idx) {
+  mgRecords.splice(idx, 1);
+  try { localStorage.setItem('mgRecords_' + new Date().getFullYear(), JSON.stringify(mgRecords)); } catch(e) {}
+  renderMgTable();
+}
+
+function renderMgTable() {
+  const tbody = document.getElementById('mgRecordTable');
+  if (!tbody) return;
+  // localStorage에서 불러오기
+  try {
+    const saved = localStorage.getItem('mgRecords_' + new Date().getFullYear());
+    if (saved && mgRecords.length === 0) mgRecords = JSON.parse(saved);
+  } catch(e) {}
+
+  const filtered = mgCurrentDept
+    ? mgRecords.filter(r=>r.dept===mgCurrentDept)
+    : mgRecords;
+
+  const typeColor = t => t==='취업'?'var(--primary)':t==='진학'?'#7c3aed':t==='공무원'?'#1d4ed8':'var(--gray-400)';
+  const typeBg   = t => t==='취업'?'#e8eef7':t==='진학'?'#f3e8ff':t==='공무원'?'#dbeafe':'var(--gray-100)';
+
+  tbody.innerHTML = filtered.length
+    ? filtered.map((r, i) => `
+      <tr>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--gray-100);font-weight:600">${r.name}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--gray-400)">${r.sid}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
+          <span style="background:${typeBg(r.type)};color:${typeColor(r.type)};padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600">${r.type}</span>
+        </td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--gray-100)">${r.company||'-'}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--text-light)">${r.job||'-'}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
+          <button onclick="deleteMgRecord(${mgRecords.indexOf(r)})"
+            style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:3px 10px;font-size:12px;color:var(--danger);cursor:pointer">
+            삭제
+          </button>
+        </td>
+      </tr>`).join('')
+    : `<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--gray-400)">입력된 데이터가 없습니다</td></tr>`;
+}
+
+// ══════════════════════════════
+// 취업현황 연도 드롭다운 (stats 페이지용)
+// ══════════════════════════════
+function buildStatsYearDropdown() {
+  const sel = document.getElementById('statsYearFilter');
+  if (!sel || sel.options.length > 1) return;
+  const start = 2023, now = new Date().getFullYear();
+  sel.innerHTML = '<option value="">전체 연도</option>';
+  for (let y = now; y >= start; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '년';
+    sel.appendChild(opt);
+  }
+}
 const DEPT_DETAIL = [
   {
     dept: '반도체계약학과', graduates:20, employed:19, college:0, year:2025,
@@ -3707,7 +4009,8 @@ function showToast(msg) {
 // 초기화
 // ══════════════════════════════
 window.onload = () => {
-  buildYearDropdown(); // ★ 연도 자동 생성
+  buildYearDropdown();      // 채용공고 연도 필터
+  buildStatsYearDropdown(); // 취업현황 연도 필터
   renderHomeJobs();
   renderStats();
 };
