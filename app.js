@@ -113,7 +113,7 @@ function renderStats() {
   // 홈 미리보기 테이블
   const homeTable = document.getElementById('homeStatsTable');
   if (homeTable) {
-    homeTable.innerHTML = SAMPLE_STATS.slice(0,5).map(s=>`
+    homeTable.innerHTML = SAMPLE_STATS.map(s=>`
       <tr>
         <td>${s.dept}</td>
         <td>${s.graduates}명</td>
@@ -403,12 +403,42 @@ function openJobModal(jobId) {
   document.getElementById('modalDetail').textContent    = job.detail;
   document.getElementById('modalTags').innerHTML = job.tags.map(t=>`<span class="tag tag-primary">${t}</span>`).join('');
 
-  // ⑧ 역할별 하단 버튼 렌더링
+  // 첨부파일 표시
+  const tagsWrap = document.getElementById('modalTagsWrap');
+  let fileHtml = '';
+  if (job.fileData) {
+    const files = job.fileData.split('||').map(f => {
+      const parts = f.split('::');
+      return { name: parts[0], url: parts[1] };
+    }).filter(f => f.name && f.url);
+    if (files.length) {
+      fileHtml = `<div class="detail-section" id="modalFilesWrap">
+        <div class="detail-label">📎 첨부파일</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+          ${files.map(f=>`
+            <a href="${f.url}" target="_blank"
+              style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;text-decoration:none;font-size:13px;color:var(--primary);transition:background 0.2s"
+              onmouseover="this.style.background='#e8eef7'" onmouseout="this.style.background='var(--gray-50)'">
+              📄 <span style="flex:1">${f.name}</span>
+              <span style="font-size:11px;color:var(--gray-400)">열기 →</span>
+            </a>`).join('')}
+        </div>
+      </div>`;
+    }
+  }
+  // 기존 첨부파일 영역 제거 후 재삽입
+  const existingFiles = document.getElementById('modalFilesWrap');
+  if (existingFiles) existingFiles.remove();
+  if (fileHtml) tagsWrap.insertAdjacentHTML('afterend', fileHtml);
+
+  // 역할별 하단 버튼 렌더링
   const footer = document.getElementById('jobModalFooter');
   if (currentRole === 'admin') {
+    const jobIdx = getAdminJobs().findIndex(j=>j.id===jobId);
     footer.innerHTML = `
-      <button class="btn-interest" onclick="openApplicantsModal('${jobId}','관심')">🔖 관심등록자 확인 (${job.interestCount||0})</button>
-      <button class="btn-apply" onclick="openApplicantsModal('${jobId}','지원')">📨 지원자 확인 (${job.applyCount||0})</button>`;
+      <button class="btn-interest" onclick="closeModal('jobModal');openJobForm(${jobIdx})" style="background:var(--gray-100);color:var(--primary);border:1px solid var(--gray-200)">✏️ 공고 수정</button>
+      <button class="btn-interest" onclick="openApplicantsModal('${jobId}','관심')">🔖 관심 (${job.interestCount||0})</button>
+      <button class="btn-apply" onclick="openApplicantsModal('${jobId}','지원')">📨 지원자 (${job.applyCount||0})</button>`;
   } else if (currentRole === 'homeroom') {
     footer.innerHTML = `
       <button class="btn-interest" onclick="doInterest()">🔖 관심등록</button>
@@ -1972,18 +2002,70 @@ function submitClassApply() {
 
 // ④ 학생 데이터 엑셀(CSV) 다운로드
 function exportStudentData(scope) {
-  // scope: 'class'(담임반) or 'all'(전체, 관리자)
-  let students = classStudents;
-  if (!students.length) {
-    // 샘플 데이터로 대체
-    students = SAMPLE_COMPANIES.flatMap(c=>c.employees);
+  if (scope === 'class' && currentRole === 'admin') {
+    // 관리자: 학과+반 선택 모달 표시
+    openClassSelectModal();
+    return;
   }
+  _doExportStudentData(scope, currentRole === 'homeroom' ? currentUser.dept : '', currentRole === 'homeroom' ? currentUser.classCode : '');
+}
+
+function openClassSelectModal() {
+  const existing = document.getElementById('classSelectModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'classSelectModal';
+  modal.className = 'modal-overlay open';
+  modal.onclick = e => { if(e.target===modal) modal.remove(); };
+  modal.innerHTML = `
+    <div class="modal" style="max-width:380px">
+      <div class="modal-header">
+        <button class="modal-close" onclick="document.getElementById('classSelectModal').remove()">✕</button>
+        <div class="modal-company">학급별 다운로드</div>
+        <div class="modal-position">학과와 반을 선택하세요</div>
+      </div>
+      <div style="padding:20px;display:grid;gap:12px">
+        <div>
+          <label class="form-label" style="font-size:11px">학과</label>
+          <select class="form-input" id="exportDeptSelect" style="font-size:13px;padding:9px 12px">
+            <option value="">-- 학과 선택 --</option>
+            ${DEPT_LIST.map(d=>`<option value="${d}">${d}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="form-label" style="font-size:11px">반</label>
+          <select class="form-input" id="exportClassSelect" style="font-size:13px;padding:9px 12px">
+            <option value="">-- 반 선택 --</option>
+            ${[1,2,3,4,5].map(n=>`<option value="${n}">${n}반</option>`).join('')}
+          </select>
+        </div>
+        <button onclick="_confirmClassExport()"
+          style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">
+          📥 다운로드
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function _confirmClassExport() {
+  const dept = document.getElementById('exportDeptSelect').value;
+  const cls  = document.getElementById('exportClassSelect').value;
+  if (!dept || !cls) { showToast('⚠️ 학과와 반을 선택해주세요'); return; }
+  document.getElementById('classSelectModal').remove();
+  _doExportStudentData('class', dept, cls);
+}
+
+function _doExportStudentData(scope, dept, cls) {
+  let students = classStudents;
+  if (!students.length) students = SAMPLE_COMPANIES.flatMap(c=>c.employees);
+  if (dept) students = students.filter(s=>(s.dept||'')===dept);
   const BOM = '\uFEFF';
   let csv = BOM + '이름,학과,자격증수,자격증목록,1학년결석,1학년지각,2학년결석,2학년지각,3학년결석,3학년지각,동아리(1학년),동아리(2학년),동아리(3학년),임원횟수,임원이력\n';
   students.forEach(s=>{
     const g = [0,1,2].map(i=>s.attend?.[i]||{absent:0,late:0});
     csv += [
-      s.name, s.dept||currentUser.dept||'',
+      s.name, s.dept||dept||'',
       (s.certs||[]).length,
       '"' + (s.certs||[]).join(', ') + '"',
       g[0].absent, g[0].late,
@@ -2000,7 +2082,8 @@ function exportStudentData(scope) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = (scope==='all'?'전체':'학급') + '_학생현황_' + new Date().toISOString().split('T')[0] + '.csv';
+  const filename = scope==='all' ? '전체' : (dept + (cls ? '_'+cls+'반' : ''));
+  a.download = filename + '_학생현황_' + new Date().toISOString().split('T')[0] + '.csv';
   a.click();
   URL.revokeObjectURL(url);
   showToast('✅ 엑셀 파일 다운로드 완료');
@@ -2025,7 +2108,7 @@ document.addEventListener('click', e => {
 // ══════════════════════════════
 const SHEETS_CONFIG = {
   get id()  { return localStorage.getItem('ss_id')  || '16lcacHI7Q04kufwbWTtQiR5rWZnOpBcZYoZRyNV9PzI'; },
-  get key() { return localStorage.getItem('api_key') || ''; },
+  get key() { return localStorage.getItem('api_key') || 'AIzaSyAMyDMQqHg2R0E4tQ0jeIwgjeaRSUMqG0s'; },
   get connected() { return !!this.key; },
 };
 
@@ -2036,11 +2119,13 @@ async function sheetsGet(range) {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_CONFIG.id}/values/${encodeURIComponent(range)}?key=${SHEETS_CONFIG.key}`;
     const res  = await fetch(url);
     const data = await res.json();
+    if (data.error) { console.warn('Sheets API 오류:', data.error.message); return null; }
     return data.values || [];
   } catch(e) { return null; }
 }
 
-// Sheets에서 채용공고 로드 (⑨)
+// Sheets에서 채용공고 로드
+// 열 순서: A=ID B=회사명 C=공고제목 D=근무지 E=모집인원 F=급여 G=마감일 H=학교장추천 I=추천인원 J=첨부파일 K=태그 L=등록일 M=상태 N=조회수
 async function loadJobsFromSheets() {
   const rows = await sheetsGet('채용공고!A2:N');
   if (!rows || !rows.length) return;
@@ -2054,11 +2139,11 @@ async function loadJobsFromSheets() {
     salary:         r[5] || '',
     deadline:       r[6] || '',
     recommendation: r[7] === '예',
-    recCount:       r[8] || '',
+    recCount:       parseInt(r[8])||0,
     fileData:       r[9] || '',
     tags:           r[10] ? r[10].split(',').map(t=>t.trim()) : [],
     createdAt:      r[11] || '',
-    status:         r[6] && r[6] < today ? 'closed' : 'open',
+    status:         r[12] || (r[6] && r[6] < today ? 'closed' : 'open'),
     views:          parseInt(r[13])||0,
     applyCount:     0, interestCount: 0,
     detail:         r[2] || '',
@@ -2070,6 +2155,35 @@ async function loadJobsFromSheets() {
     renderHomeJobs(); renderAllJobs();
     showToast('✅ 채용공고 ' + jobs.length + '건 로드됨 (Sheets)');
   }
+}
+
+// Sheets에서 지원현황 로드
+async function loadApplicationsFromSheets() {
+  const rows = await sheetsGet('지원현황!A2:L');
+  if (!rows || !rows.length) return;
+  const apps = rows.map(r=>({
+    id:       r[0]||'',
+    jobId:    r[1]||'',
+    jobTitle: r[2]||'',
+    name:     r[3]||'',
+    dept:     r[4]||'',
+    grade:    r[5]||'',
+    classNum: r[6]||'',
+    phone:    r[7]||'',
+    reason:   r[8]||'',
+    type:     r[9]==='관심'?'관심':'지원',
+    createdAt:r[10]||'',
+    memo:     r[11]||'',
+  })).filter(a=>a.jobId);
+  // localStorage에 병합 저장
+  try { localStorage.setItem('applications', JSON.stringify(apps)); } catch(e) {}
+  // 공고별 카운트 업데이트
+  const jobs = getAdminJobs();
+  jobs.forEach(j=>{
+    j.applyCount    = apps.filter(a=>a.jobId===j.id && a.type==='지원').length;
+    j.interestCount = apps.filter(a=>a.jobId===j.id && a.type==='관심').length;
+  });
+  saveAdminJobs();
 }
 
 // Sheets에서 학생 정보 로드 (⑪)
@@ -2098,6 +2212,7 @@ async function verifyStudentLogin(dept, sid, name) {
 async function connectAndLoad() {
   if (!SHEETS_CONFIG.connected) return;
   await loadJobsFromSheets();
+  await loadApplicationsFromSheets();
 }
 
 function showToast(msg) {
@@ -2144,6 +2259,8 @@ function getBanners() {
   try { return JSON.parse(localStorage.getItem('banners') || '[]'); } catch(e) { return []; }
 }
 
+let _bannerEditIdx = -1;
+
 function addBanner() {
   const title    = document.getElementById('bannerTitle').value.trim();
   const link     = document.getElementById('bannerLink').value.trim();
@@ -2151,13 +2268,37 @@ function addBanner() {
   const color    = document.getElementById('bannerColor').value;
   if (!title) { showToast('⚠️ 배너 제목을 입력해주세요'); return; }
   const banners = getBanners();
-  banners.push({ title, link, deadline, color, visible: true, createdAt: new Date().toISOString().split('T')[0] });
+  const record = { title, link, deadline, color, visible: true, createdAt: new Date().toISOString().split('T')[0] };
+  if (_bannerEditIdx >= 0) {
+    record.visible = banners[_bannerEditIdx].visible;
+    record.createdAt = banners[_bannerEditIdx].createdAt;
+    banners[_bannerEditIdx] = record;
+    _bannerEditIdx = -1;
+    document.querySelector('[onclick="addBanner()"]').textContent = '➕ 배너 추가';
+    showToast('✅ 배너가 수정되었습니다');
+  } else {
+    banners.push(record);
+    showToast('✅ 배너가 추가되었습니다');
+  }
   saveBanners(banners);
   renderAdminBanners();
   document.getElementById('bannerTitle').value = '';
   document.getElementById('bannerLink').value = '';
   document.getElementById('bannerDeadline').value = '';
-  showToast('✅ 배너가 추가되었습니다');
+  document.getElementById('bannerColor').value = 'blue';
+}
+
+function editBanner(idx) {
+  const banners = getBanners();
+  const b = banners[idx];
+  if (!b) return;
+  _bannerEditIdx = idx;
+  document.getElementById('bannerTitle').value    = b.title || '';
+  document.getElementById('bannerLink').value     = b.link || '';
+  document.getElementById('bannerDeadline').value = b.deadline || '';
+  document.getElementById('bannerColor').value    = b.color || 'blue';
+  document.querySelector('[onclick="addBanner()"]').textContent = '💾 배너 수정 저장';
+  showToast('✏️ 수정 모드 — 내용 변경 후 저장하세요');
 }
 
 function deleteBanner(idx) {
@@ -2184,24 +2325,32 @@ function renderAdminBanners() {
     list.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:13px;padding:16px">등록된 배너가 없습니다</div>';
     return;
   }
+  const colorMap = { blue:'#1a3a6b', gold:'#b45309', green:'#16a34a', red:'#dc2626', purple:'#7c3aed' };
   list.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
     <thead><tr>
       <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">제목</th>
-      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">링크</th>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">색상</th>
       <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">마감일</th>
       <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">표시</th>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">수정</th>
       <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">삭제</th>
     </tr></thead>
     <tbody>${banners.map((b,i)=>`
       <tr>
         <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-weight:600">${b.title}</td>
-        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-size:11px;color:var(--gray-400);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.link||'-'}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
+          <span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${colorMap[b.color]||'#1a3a6b'};vertical-align:middle"></span>
+        </td>
         <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">${b.deadline||'-'}</td>
         <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
           <button onclick="toggleBanner(${i})"
             style="background:${b.visible?'var(--success)':'var(--gray-200)'};color:${b.visible?'#fff':'var(--gray-600)'};border:none;border-radius:12px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">
             ${b.visible?'표시중':'숨김'}
           </button>
+        </td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
+          <button onclick="editBanner(${i})"
+            style="background:none;border:1px solid var(--primary);border-radius:6px;padding:3px 10px;font-size:12px;color:var(--primary);cursor:pointer">✏️ 수정</button>
         </td>
         <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
           <button onclick="deleteBanner(${i})"

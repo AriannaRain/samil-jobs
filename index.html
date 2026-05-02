@@ -114,7 +114,6 @@
     <div class="container">
       <div class="section-header">
         <h2 class="section-title">학과별 취업현황</h2>
-        <button class="btn-more" onclick="showPage('stats')">전체보기 →</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -190,7 +189,8 @@
 
       <!-- 현황 보기 섹션 -->
       <div id="statsModeView">
-        <div class="stat-box blue">
+        <div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap">
+        <div class="stat-box blue" style="flex:1;min-width:140px">
           <div class="stat-box-num">142</div>
           <div class="stat-box-label">총 취업자</div>
           <div class="stat-box-sub">2025학년도</div>
@@ -210,11 +210,27 @@
           <div class="stat-box-label">협력업체</div>
           <div class="stat-box-sub">MOU 체결 업체</div>
         </div>
-        <div class="stat-box gray">
+        <div class="stat-box gold" style="flex:1;min-width:140px">
+          <div class="stat-box-num">89%</div>
+          <div class="stat-box-label">취업률</div>
+          <div class="stat-box-sub">전국 평균 대비 +12%</div>
+        </div>
+        <div class="stat-box green" style="flex:1;min-width:140px">
+          <div class="stat-box-num">54</div>
+          <div class="stat-box-label">취업업체 수</div>
+          <div class="stat-box-sub">2025년 취업 업체</div>
+        </div>
+        <div class="stat-box" style="flex:1;min-width:140px;--c:#7c3aed">
+          <div class="stat-box-num" style="color:#7c3aed">87</div>
+          <div class="stat-box-label">협력업체</div>
+          <div class="stat-box-sub">MOU 체결 업체</div>
+        </div>
+        <div class="stat-box gray" style="flex:1;min-width:140px">
           <div class="stat-box-num">160</div>
           <div class="stat-box-label">졸업생</div>
           <div class="stat-box-sub">2025년 졸업</div>
         </div>
+        </div><!-- flex 컨테이너 닫기 -->
 
         <!-- ① 학과별 취업현황 요약 테이블 -->
         <div class="table-wrap" style="margin-bottom:20px">
