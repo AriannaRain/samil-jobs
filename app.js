@@ -756,28 +756,38 @@ function renderMgClassTabs() {
   const tabsEl = document.getElementById('manageClassTabs');
   const panel  = document.getElementById('manageStudentPanel');
   const hint   = document.getElementById('manageSelectHint');
-  // 반 탭: 1~5반 (학생데이터 기준으로 실제 있는 반만)
+  if (!tabsEl) return;
+
   const classes = ['1반','2반','3반'];
-  tabsEl.innerHTML = classes.map((c,i)=>`
-    <button class="filter-btn ${mgCurrentClass===c?'active':''}" onclick="selectMgClass('${c}',this)"
-      style="font-size:12px;padding:5px 12px">${c}</button>`).join('');
+
+  // 반 탭 버튼 명시적 렌더링
+  tabsEl.style.display = 'flex';
+  tabsEl.innerHTML = classes.map(c => {
+    const isActive = mgCurrentClass === c;
+    return '<button onclick="selectMgClass(\'' + c + '\',this)" ' +
+      'style="padding:6px 14px;border:1.5px solid ' + (isActive ? 'var(--primary)' : 'var(--gray-200)') + ';' +
+      'background:' + (isActive ? 'var(--primary)' : 'var(--white)') + ';' +
+      'color:' + (isActive ? '#fff' : 'var(--gray-600)') + ';' +
+      'border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;' +
+      'font-family:\'Noto Sans KR\',sans-serif">' + c + '</button>';
+  }).join('');
+
+  // 힌트/패널 표시 제어
   if (!mgCurrentClass) {
-    panel.style.display = 'none';
-    hint.style.display = 'block';
+    if (panel) panel.style.display = 'none';
+    if (hint) { hint.style.display = 'block'; hint.textContent = '👆 반을 선택하면 학생 목록이 표시됩니다'; }
   } else {
+    if (hint) hint.style.display = 'none';
+    if (panel) panel.style.display = 'block';
     renderMgStudentTable();
   }
 }
 
 function selectMgClass(cls, btn) {
-  document.querySelectorAll('#manageClassTabs .filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
   mgCurrentClass = cls;
-  document.getElementById('manageStudentPanel').style.display = 'block';
-  document.getElementById('manageSelectHint').style.display = 'none';
-  const classNum = cls.replace('반','');
-  document.getElementById('mgTableTitle').textContent = `${mgCurrentDept} ${cls} 취업·진로 현황`;
-  renderMgStudentTable();
+  renderMgClassTabs(); // 버튼 스타일 갱신
+  const titleEl = document.getElementById('mgTableTitle');
+  if (titleEl) titleEl.textContent = mgCurrentDept + ' ' + cls + ' 취업·진로 현황';
 }
 
 function renderMgStudentTable() {
