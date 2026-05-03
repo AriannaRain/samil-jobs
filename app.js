@@ -2343,10 +2343,12 @@ function renderAdminDeptList() {
     </tr></thead>
     <tbody>${list.map((d,i)=>{
       const active = d.startYear<=now && (d.endYear===null||d.endYear>=now);
+      const aliasHtml = d.alias&&d.alias.length ? '<span style="font-size:11px;color:var(--gray-400);margin-left:6px">('+d.alias.join(' / ')+')</span>' : '';
+      const mergedHtml = d.mergedFrom&&d.mergedFrom.length ? d.mergedFrom.join(' + ') : '-';
       return `<tr>
-        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-weight:600">${d.name}${d.alias&&d.alias.length?'<span style="font-size:11px;color:var(--gray-400);margin-left:6px">(${d.alias.join(', ')})</span>':''}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-weight:600">${d.name}${aliasHtml}</td>
         <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center;font-size:12px">${d.startYear}~${d.endYear||'현재'}</td>
-        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--gray-600)">${d.mergedFrom&&d.mergedFrom.length?d.mergedFrom.join(' + '):'-'}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--gray-600)">${mergedHtml}</td>
         <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
           <span style="background:${active?'var(--success)':'var(--gray-200)'};color:${active?'#fff':'var(--gray-600)'};border-radius:12px;padding:2px 10px;font-size:11px">${active?'운영중':'폐과'}</span>
         </td>
