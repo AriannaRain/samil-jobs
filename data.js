@@ -207,8 +207,39 @@ const DEPT_DETAIL = [
   },
 ];
 
-// ══ DEPT_LIST ══
-const DEPT_LIST = [
-  '화학공업과','환경과','전자과','소방전기과','사물인터넷과',
-  '반도체계약학과','레저스포츠과','로봇설계과','3D융합콘텐츠과','경찰사무행정과'
+// ══ DEPT_LIST (연도별 누적 구조) ══
+const DEPT_LIST_DEFAULT = [
+  { name:'화학공업과',     startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'환경과',         startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'전자과',         startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'소방전기과',     startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'사물인터넷과',   startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'반도체계약학과', startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'레저스포츠과',   startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'로봇설계과',     startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'3D융합콘텐츠과', startYear:2020, endYear:null, mergedFrom:[], alias:[] },
+  { name:'경찰사무행정과', startYear:2020, endYear:null, mergedFrom:[], alias:[] },
 ];
+
+function getDeptList() {
+  try { const s=localStorage.getItem('deptList'); if(s) return JSON.parse(s); } catch(e) {}
+  return DEPT_LIST_DEFAULT;
+}
+function saveDeptListData(list) {
+  try { localStorage.setItem('deptList', JSON.stringify(list)); } catch(e) {}
+}
+function getActiveDepts(year) {
+  const y = year || new Date().getFullYear();
+  return getDeptList().filter(d => d.startYear<=y && (d.endYear===null||d.endYear>=y));
+}
+function getDeptSearchNames(deptName) {
+  const d = getDeptList().find(x=>x.name===deptName);
+  if(!d) return [deptName];
+  return [d.name,...(d.mergedFrom||[]),...(d.alias||[])];
+}
+
+// 하위호환: 현재 운영중 학과명 배열
+function getActiveDeptNames(year) { return getActiveDepts(year).map(d=>d.name); }
+
+// DEPT_LIST 는 현재 운영중 학과명 배열 (동적)
+let DEPT_LIST = getActiveDeptNames();

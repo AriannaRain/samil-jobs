@@ -23,7 +23,7 @@ function showPage(name) {
   if (name === 'home') renderHomeJobs();
   if (name === 'jobs') renderAllJobs();
   if (name === 'stats') renderStats();
-  if (name === 'admin') { renderAdminBanners(); renderAdminJobTable(); }
+  if (name === 'admin') { renderAdminBanners(); renderAdminJobTable(); renderAdminDeptList(); }
 }
 
 // ══════════════════════════════
@@ -100,15 +100,16 @@ function renderStats() {
   buildStatsYearDropdown();
   const isStaff = currentRole === 'admin' || currentRole === 'homeroom';
 
-  // 관리 탭 표시 여부
   const modeTab = document.getElementById('statsModeTab');
   if (modeTab) modeTab.style.display = isStaff ? 'flex' : 'none';
 
-  // 현황 보기가 기본
   if (isStaff && statsMode === 1) {
     renderManageSection(); return;
   }
   switchStatsMode(0);
+
+  // 통계박스 동적 렌더링
+  renderStatsBoxes();
 
   // 홈 미리보기 테이블
   const homeTable = document.getElementById('homeStatsTable');
@@ -897,6 +898,65 @@ function renderMgTable() {
 // ══════════════════════════════
 // 취업현황 연도 드롭다운 (stats 페이지용)
 // ══════════════════════════════
+
+// ══════════════════════════════
+// 통계박스 동적 렌더링 (선택연도 vs 전년도 비교)
+// ══════════════════════════════
+function renderStatsBoxes() {
+  const container = document.getElementById('statsBoxContainer');
+  if (!container) return;
+
+  const sel = document.getElementById('statsYearFilter');
+  const selectedYear = sel ? parseInt(sel.value) || new Date().getFullYear() : new Date().getFullYear();
+  const prevYear = selectedYear - 1;
+
+  // 연도별 통계 집계 (SAMPLE_STATS 기반, 향후 Sheets 데이터로 교체)
+  function getYearStats(year) {
+    // 현재는 샘플데이터 사용 (year 무관). Sheets 연동 시 year별 필터링
+    const s = SAMPLE_STATS;
+    const totalGrad = s.reduce((a,x)=>a+x.graduates,0);
+    const totalEmp  = s.reduce((a,x)=>a+x.employed,0);
+    const totalHope = s.reduce((a,x)=>a+x.hope,0);
+    const rate      = totalHope > 0 ? Math.round(totalEmp/totalHope*100) : 0;
+    const companies = [...new Set(SAMPLE_COMPANIES.map(c=>c.company))].length;
+    return { year, graduates: totalGrad, employed: totalEmp, hope: totalHope, rate, companies };
+  }
+
+  const cur  = getYearStats(selectedYear);
+  const prev = getYearStats(prevYear);
+
+  function diff(a, b) {
+    const d = a - b;
+    if (d === 0) return '';
+    const color = d > 0 ? 'var(--success)' : 'var(--danger)';
+    return `<span style="font-size:10px;color:${color};font-weight:600">${d>0?'▲':'▼'}${Math.abs(d)}</span>`;
+  }
+
+  const boxes = [
+    { label:'졸업생',    curVal: cur.graduates+'명',  prevVal: prev.graduates+'명',  cls:'gray',  diffVal: diff(cur.graduates, prev.graduates) },
+    { label:'취업자',    curVal: cur.employed+'명',   prevVal: prev.employed+'명',   cls:'blue',  diffVal: diff(cur.employed, prev.employed) },
+    { label:'취업률',    curVal: cur.rate+'%',        prevVal: prev.rate+'%',        cls:'gold',  diffVal: diff(cur.rate, prev.rate) },
+    { label:'취업희망',  curVal: cur.hope+'명',       prevVal: prev.hope+'명',       cls:'',      diffVal: diff(cur.hope, prev.hope) },
+    { label:'협력업체',  curVal: cur.companies+'개',  prevVal: prev.companies+'개',  cls:'green', diffVal: diff(cur.companies, prev.companies) },
+  ];
+
+  container.innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <span style="font-size:13px;font-weight:700;color:var(--text)">${selectedYear}년 현황</span>
+      <span style="font-size:12px;color:var(--gray-400)">vs ${prevYear}년 비교</span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      ${boxes.map(b=>`
+        <div class="stat-box ${b.cls}" style="flex:1;min-width:130px">
+          <div class="stat-box-num">${b.curVal}</div>
+          <div class="stat-box-label">${b.label}</div>
+          <div class="stat-box-sub" style="display:flex;align-items:center;justify-content:center;gap:4px">
+            전년 ${b.prevVal} ${b.diffVal}
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
 function buildStatsYearDropdown() {
   const sel = document.getElementById('statsYearFilter');
   if (!sel || sel.options.length > 1) return;
@@ -2257,6 +2317,108 @@ function buildDeptSelects() {
 // ⑬ 배너 관리 (관리자)
 function getBanners() {
   try { return JSON.parse(localStorage.getItem('banners') || '[]'); } catch(e) { return []; }
+}
+
+
+// ══════════════════════════════
+// 학과 관리 CRUD
+// ══════════════════════════════
+function renderAdminDeptList() {
+  const el = document.getElementById('adminDeptList');
+  if (!el) return;
+  const list = getDeptList();
+  const now = new Date().getFullYear();
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--gray-400);font-size:13px;padding:16px">등록된 학과가 없습니다</div>';
+    return;
+  }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">학과명</th>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">운영기간</th>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">합과(구학과)</th>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">상태</th>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">수정</th>
+      <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">삭제</th>
+    </tr></thead>
+    <tbody>${list.map((d,i)=>{
+      const active = d.startYear<=now && (d.endYear===null||d.endYear>=now);
+      return `<tr>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-weight:600">${d.name}${d.alias&&d.alias.length?'<span style="font-size:11px;color:var(--gray-400);margin-left:6px">(${d.alias.join(', ')})</span>':''}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center;font-size:12px">${d.startYear}~${d.endYear||'현재'}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--gray-600)">${d.mergedFrom&&d.mergedFrom.length?d.mergedFrom.join(' + '):'-'}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
+          <span style="background:${active?'var(--success)':'var(--gray-200)'};color:${active?'#fff':'var(--gray-600)'};border-radius:12px;padding:2px 10px;font-size:11px">${active?'운영중':'폐과'}</span>
+        </td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
+          <button onclick="openDeptForm(${i})" style="background:none;border:1px solid var(--primary);border-radius:6px;padding:3px 10px;font-size:12px;color:var(--primary);cursor:pointer">✏️ 수정</button>
+        </td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--gray-100);text-align:center">
+          <button onclick="deleteDept(${i})" style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:3px 10px;font-size:12px;color:var(--danger);cursor:pointer">삭제</button>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function openDeptForm(idx) {
+  document.getElementById('dfIdx').value = idx !== undefined ? idx : -1;
+  const list = getDeptList();
+  const d = idx !== undefined ? list[idx] : null;
+  document.getElementById('deptFormTitle').textContent = d ? '학과 수정' : '학과 추가';
+  document.getElementById('dfName').value      = d ? d.name : '';
+  document.getElementById('dfStartYear').value = d ? d.startYear : new Date().getFullYear();
+  document.getElementById('dfEndYear').value   = d ? (d.endYear || '') : '';
+  document.getElementById('dfAlias').value     = d ? (d.alias||[]).join(', ') : '';
+  // 합과 체크박스 렌더링 (자기 자신 제외)
+  const cb = document.getElementById('dfMergeCheckboxes');
+  const others = list.filter((_,i)=>i!==idx);
+  cb.innerHTML = others.length ? others.map(x=>`
+    <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:3px 8px;background:var(--white);border:1px solid var(--gray-200);border-radius:6px">
+      <input type="checkbox" value="${x.name}" ${d&&d.mergedFrom&&d.mergedFrom.includes(x.name)?'checked':''}> ${x.name}
+    </label>`).join('') : '<span style="font-size:12px;color:var(--gray-400)">다른 학과 없음</span>';
+  openModal('deptFormModal');
+}
+
+function saveDeptForm() {
+  const idx = parseInt(document.getElementById('dfIdx').value);
+  const name = document.getElementById('dfName').value.trim();
+  const startYear = parseInt(document.getElementById('dfStartYear').value);
+  const endYear = document.getElementById('dfEndYear').value ? parseInt(document.getElementById('dfEndYear').value) : null;
+  const alias = document.getElementById('dfAlias').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const mergedFrom = [...document.querySelectorAll('#dfMergeCheckboxes input:checked')].map(cb=>cb.value);
+
+  if (!name || !startYear) { showToast('⚠️ 학과명과 시작연도를 입력해주세요'); return; }
+
+  const list = getDeptList();
+  const record = { name, startYear, endYear, mergedFrom, alias };
+
+  if (idx >= 0) {
+    list[idx] = record;
+    showToast('✅ 학과 정보가 수정되었습니다');
+  } else {
+    list.push(record);
+    showToast('✅ 학과가 추가되었습니다');
+  }
+  saveDeptListData(list);
+  // DEPT_LIST 동기화
+  DEPT_LIST.length = 0;
+  getActiveDeptNames().forEach(n => DEPT_LIST.push ? DEPT_LIST.push(n) : null);
+  closeModal('deptFormModal');
+  renderAdminDeptList();
+  renderStats(); // 홈·취업현황 연동 갱신
+}
+
+function deleteDept(idx) {
+  const list = getDeptList();
+  if (!confirm(`'${list[idx].name}' 학과를 삭제하시겠습니까?
+관련 데이터는 유지됩니다.`)) return;
+  list.splice(idx, 1);
+  saveDeptListData(list);
+  renderAdminDeptList();
+  renderStats();
+  showToast('🗑️ 삭제됐습니다');
 }
 
 let _bannerEditIdx = -1;

@@ -182,55 +182,14 @@
           </div>
           <select id="statsYearFilter" class="filter-btn"
             style="padding:8px 14px;border-radius:8px;cursor:pointer"
-            onchange="renderStats()">
+            onchange="renderStats();renderStatsBoxes()">
           </select>
         </div>
       </div>
 
       <!-- 현황 보기 섹션 -->
       <div id="statsModeView">
-        <div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap">
-        <div class="stat-box blue" style="flex:1;min-width:140px">
-          <div class="stat-box-num">142</div>
-          <div class="stat-box-label">총 취업자</div>
-          <div class="stat-box-sub">2025학년도</div>
-        </div>
-        <div class="stat-box gold">
-          <div class="stat-box-num">89%</div>
-          <div class="stat-box-label">취업률</div>
-          <div class="stat-box-sub">전국 평균 대비 +12%</div>
-        </div>
-        <div class="stat-box green">
-          <div class="stat-box-num">54</div>
-          <div class="stat-box-label">취업업체 수</div>
-          <div class="stat-box-sub">2025년 취업 업체</div>
-        </div>
-        <div class="stat-box" style="--c:#7c3aed">
-          <div class="stat-box-num" style="color:#7c3aed">87</div>
-          <div class="stat-box-label">협력업체</div>
-          <div class="stat-box-sub">MOU 체결 업체</div>
-        </div>
-        <div class="stat-box gold" style="flex:1;min-width:140px">
-          <div class="stat-box-num">89%</div>
-          <div class="stat-box-label">취업률</div>
-          <div class="stat-box-sub">전국 평균 대비 +12%</div>
-        </div>
-        <div class="stat-box green" style="flex:1;min-width:140px">
-          <div class="stat-box-num">54</div>
-          <div class="stat-box-label">취업업체 수</div>
-          <div class="stat-box-sub">2025년 취업 업체</div>
-        </div>
-        <div class="stat-box" style="flex:1;min-width:140px;--c:#7c3aed">
-          <div class="stat-box-num" style="color:#7c3aed">87</div>
-          <div class="stat-box-label">협력업체</div>
-          <div class="stat-box-sub">MOU 체결 업체</div>
-        </div>
-        <div class="stat-box gray" style="flex:1;min-width:140px">
-          <div class="stat-box-num">160</div>
-          <div class="stat-box-label">졸업생</div>
-          <div class="stat-box-sub">2025년 졸업</div>
-        </div>
-        </div><!-- flex 컨테이너 닫기 -->
+        <div id="statsBoxContainer" style="margin-bottom:24px"></div>
 
         <!-- ① 학과별 취업현황 요약 테이블 -->
         <div class="table-wrap" style="margin-bottom:20px">
@@ -630,6 +589,14 @@
         </div>
       </div>
       <div style="margin-top:16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+          <span>🏫 학과 관리</span>
+          <button onclick="openDeptForm()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">➕ 학과 추가</button>
+        </div>
+        <div style="font-size:12px;color:var(--gray-400);margin-bottom:14px">학과명 변경·합과 시 연도를 지정하면 기존 재학생은 이전 학과명 유지, 신입생부터 새 학과명 적용됩니다.</div>
+        <div id="adminDeptList"></div>
+      </div>
+      <div style="margin-top:16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;">
         <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px">📥 학생 데이터 엑셀 다운로드</div>
         <div style="font-size:13px;color:var(--text-light);margin-bottom:14px">생활기록부 분석 데이터를 CSV 파일로 다운로드합니다.</div>
         <div style="display:flex;gap:10px">
@@ -652,6 +619,35 @@
         </div>
         <button onclick="addBanner()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:14px">➕ 배너 추가</button>
         <div id="adminBannerList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 학과 등록/수정 모달 -->
+<div class="modal-overlay" id="deptFormModal" onclick="if(event.target===this)closeModal('deptFormModal')">
+  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal('deptFormModal')">✕</button>
+      <div class="modal-company" id="deptFormTitle">학과 추가</div>
+      <div class="modal-position">학과 정보를 입력하세요</div>
+    </div>
+    <div style="padding:20px;display:grid;gap:12px">
+      <input type="hidden" id="dfIdx">
+      <div><label class="form-label" style="font-size:11px">학과명 *</label><input class="form-input" id="dfName" placeholder="예: AI반도체과" style="font-size:13px;padding:9px 12px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label class="form-label" style="font-size:11px">운영 시작 연도 *</label><input class="form-input" id="dfStartYear" type="number" placeholder="2025" style="font-size:13px;padding:9px 12px"></div>
+        <div><label class="form-label" style="font-size:11px">운영 종료 연도 (현재 운영 중이면 비워두세요)</label><input class="form-input" id="dfEndYear" type="number" placeholder="미입력 = 현재 운영중" style="font-size:13px;padding:9px 12px"></div>
+      </div>
+      <div>
+        <label class="form-label" style="font-size:11px">합과 대상 (이 학과로 합쳐지는 구학과 선택)</label>
+        <div id="dfMergeCheckboxes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;padding:10px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-200);min-height:40px"></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:4px">선택한 구학과의 데이터를 이 학과에서 통합 조회할 수 있습니다</div>
+      </div>
+      <div><label class="form-label" style="font-size:11px">별칭 (쉼표 구분, 예: 구학과명)</label><input class="form-input" id="dfAlias" placeholder="예: 화공과, 화학과" style="font-size:13px;padding:9px 12px"></div>
+      <div style="display:flex;gap:8px">
+        <button onclick="saveDeptForm()" style="flex:1;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">💾 저장</button>
+        <button onclick="closeModal('deptFormModal')" style="background:none;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px 20px;font-size:13px;color:var(--gray-600);cursor:pointer;font-family:'Noto Sans KR',sans-serif">취소</button>
       </div>
     </div>
   </div>
