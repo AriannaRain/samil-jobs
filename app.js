@@ -98,6 +98,19 @@ function searchJobs() { renderAllJobs(); }
 // ══════════════════════════════
 // 취업현황 렌더
 // ══════════════════════════════
+// getDeptList() 순서 기준으로 배열 정렬
+function sortByDeptOrder(arr, deptKey) {
+  const order = getDeptList().map(d => d.name);
+  return [...arr].sort((a, b) => {
+    const ai = order.indexOf(a[deptKey]);
+    const bi = order.indexOf(b[deptKey]);
+    if (ai === -1 && bi === -1) return 0;
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+}
+
 function renderStats() {
   buildStatsYearDropdown();
   const isStaff = currentRole === 'admin' || currentRole === 'homeroom';
@@ -116,7 +129,7 @@ function renderStats() {
   // 홈 미리보기 테이블
   const homeTable = document.getElementById('homeStatsTable');
   if (homeTable) {
-    homeTable.innerHTML = SAMPLE_STATS.map(s=>`
+    homeTable.innerHTML = sortByDeptOrder(SAMPLE_STATS,'dept').map(s=>`
       <tr>
         <td>${s.dept}</td>
         <td>${s.graduates}명</td>
@@ -132,7 +145,7 @@ function renderStats() {
     const thDetail = document.getElementById('thDeptDetail');
     if (thDetail) thDetail.style.display = isStaff ? '' : 'none';
 
-    fullTable.innerHTML = SAMPLE_STATS.map(s=>`
+    fullTable.innerHTML = sortByDeptOrder(SAMPLE_STATS,'dept').map(s=>`
       <tr>
         <td><strong>${s.dept}</strong></td>
         <td>${s.graduates}명</td>
