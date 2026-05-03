@@ -301,54 +301,34 @@
 
       <!-- ── 올해 관리 섹션 (관리자/담임교사 전용) ── -->
       <div id="statsModeManage" style="display:none">
-        <div style="margin-bottom:16px">
-          <div style="font-size:13px;color:var(--gray-400);margin-bottom:10px"><span id="manageRoleDesc"></span></div>
-          <div id="manageDeptTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
-        </div>
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:20px;margin-bottom:16px">
-          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px">
-            ➕ 취업·진학 정보 입력
-            <span style="font-size:12px;font-weight:400;color:var(--gray-400)">(Google Sheets 연결 후 실제 저장)</span>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-            <div><label class="form-label" style="font-size:11px">학생 이름</label><input class="form-input" id="mgName" type="text" placeholder="홍길동" style="font-size:13px;padding:9px 12px"></div>
-            <div><label class="form-label" style="font-size:11px">학번</label><input class="form-input" id="mgStudentId" type="text" placeholder="3101" maxlength="4" style="font-size:13px;padding:9px 12px"></div>
-            <div><label class="form-label" style="font-size:11px">구분</label><select class="form-input" id="mgType" style="font-size:13px;padding:9px 12px" onchange="toggleMgFields()"><option value="취업">취업</option><option value="진학">진학</option><option value="미취업">미취업</option><option value="군입대">군입대</option></select></div>
-          </div>
-          <div id="mgJobFields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-            <div><label class="form-label" style="font-size:11px">취업업체</label><input class="form-input" id="mgCompany" type="text" placeholder="삼성전자" style="font-size:13px;padding:9px 12px"></div>
-            <div><label class="form-label" style="font-size:11px">직종</label><input class="form-input" id="mgJob" type="text" placeholder="반도체 생산기술" style="font-size:13px;padding:9px 12px"></div>
-            <div><label class="form-label" style="font-size:11px">급여</label><input class="form-input" id="mgSalary" type="text" placeholder="월 280만원~" style="font-size:13px;padding:9px 12px"></div>
-          </div>
-          <div id="mgCollegeFields" style="display:none;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-            <div><label class="form-label" style="font-size:11px">대학교</label><input class="form-input" id="mgUniv" type="text" placeholder="한국산업기술대" style="font-size:13px;padding:9px 12px"></div>
-            <div><label class="form-label" style="font-size:11px">학과</label><input class="form-input" id="mgMajor" type="text" placeholder="전자공학과" style="font-size:13px;padding:9px 12px"></div>
-            <div><label class="form-label" style="font-size:11px">전형</label><select class="form-input" id="mgAdmission" style="font-size:13px;padding:9px 12px"><option>특성화고 전형</option><option>수시</option><option>정시</option></select></div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button onclick="addMgRecord()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">➕ 추가</button>
-            <button id="mgCancelBtn" onclick="cancelMgEdit()" style="display:none;background:none;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px 16px;font-size:13px;font-weight:500;color:var(--gray-600);cursor:pointer;font-family:'Noto Sans KR',sans-serif">✕ 취소</button>
-          </div>
-        </div>
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden">
-          <div style="padding:14px 18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:14px;font-weight:700;color:var(--text)" id="mgTableTitle">올해 취업·진로 현황</span>
-            <span style="font-size:12px;color:var(--gray-400)">※ Google Sheets 연결 전 임시 저장</span>
+        <div style="font-size:13px;color:var(--gray-400);margin-bottom:12px"><span id="manageRoleDesc"></span></div>
+        <!-- 학과 탭 -->
+        <div id="manageDeptTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+        <!-- 반 탭 -->
+        <div id="manageClassTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
+        <!-- 학생 목록 테이블 -->
+        <div id="manageStudentPanel" style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;display:none">
+          <div style="padding:12px 18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:14px;font-weight:700;color:var(--text)" id="mgTableTitle">학생 목록</span>
+            <span style="font-size:12px;color:var(--gray-400)">※ 각 행에서 직접 수정 가능</span>
           </div>
           <div style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse">
+            <table style="width:100%;border-collapse:collapse;min-width:700px">
               <thead><tr>
                 <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">학번</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">학번</th>
                 <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">구분</th>
                 <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">업체/대학</th>
                 <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">직종/학과</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">수정</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">삭제</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">급여/전형</th>
+                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">저장</th>
               </tr></thead>
-              <tbody id="mgRecordTable"><tr><td colspan="6" style="padding:24px;text-align:center;color:var(--gray-400)">입력된 데이터가 없습니다</td></tr></tbody>
+              <tbody id="mgRecordTable"></tbody>
             </table>
           </div>
+        </div>
+        <div id="manageSelectHint" style="text-align:center;padding:40px;color:var(--gray-400);font-size:13px">
+          👆 학과와 반을 선택하면 학생 목록이 표시됩니다
         </div>
       </div><!-- statsModeManage 닫기 -->
 
@@ -467,6 +447,39 @@
           </div>
           <div id="mytabPanel2" style="display:none"><div style="margin-bottom:16px;font-size:13px;color:var(--gray-600)">내 스펙을 기반으로 선배들이 취업한 업체와 유사도를 분석했습니다.</div><div id="recommendList"></div></div>
           <div id="mytabPanel3" style="display:none"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">업체명</th><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">직종</th><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">지원일</th><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">구분</th></tr></thead><tbody id="myApplyTable"><tr><td colspan="4" style="padding:28px;text-align:center;color:var(--gray-400)">지원한 공고가 없습니다</td></tr></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ 담임교사 마이페이지 ══════════════ -->
+<div class="page" id="pageHomeroomMypage">
+  <div class="section">
+    <div class="container">
+      <div class="section-header" style="margin-bottom:24px">
+        <h2 class="section-title">마이페이지</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:700px">
+        <!-- 담당 학급 정보 -->
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px">🏫 담당 학급 정보</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-400)">학과</span><span id="hrDept" style="font-weight:600">-</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-400)">담당 반</span><span id="hrClass" style="font-weight:600">-</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-400)">아이디</span><span id="hrId" style="font-weight:600;font-family:monospace">-</span></div>
+          </div>
+        </div>
+        <!-- 비밀번호 변경 -->
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px">
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px">🔑 비밀번호 변경</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <input class="form-input" id="hrCurPw" type="password" placeholder="현재 비밀번호" style="font-size:13px;padding:9px 12px">
+            <input class="form-input" id="hrNewPw" type="password" placeholder="새 비밀번호 (4자 이상)" style="font-size:13px;padding:9px 12px">
+            <input class="form-input" id="hrNewPw2" type="password" placeholder="새 비밀번호 확인" style="font-size:13px;padding:9px 12px" onkeydown="if(event.key==='Enter')doHrChangePw()">
+            <button onclick="doHrChangePw()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">변경하기</button>
+            <div id="hrPwError" style="font-size:12px;color:var(--danger);display:none"></div>
+          </div>
         </div>
       </div>
     </div>

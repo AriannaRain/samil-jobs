@@ -13,8 +13,8 @@ const ADMIN_PW = 'samil2025';
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const pageMap = { home:'pageHome', jobs:'pageJobs', stats:'pageStats', mypage:'pageMypage', admin:'pageAdmin', homeroom:'pageHomeroom' };
-  const navMap = { home:'nav-home', jobs:'nav-jobs', stats:'nav-stats', mypage:'nav-mypage', admin:'nav-admin', homeroom:'nav-homeroom' };
+  const pageMap = { home:'pageHome', jobs:'pageJobs', stats:'pageStats', mypage:'pageMypage', admin:'pageAdmin', homeroom:'pageHomeroom', homeroomMypage:'pageHomeroomMypage' };
+  const navMap = { home:'nav-home', jobs:'nav-jobs', stats:'nav-stats', mypage:'nav-mypage', admin:'nav-admin', homeroom:'nav-homeroom', homeroomMypage:'nav-mypage' };
   const page = document.getElementById(pageMap[name]);
   const nav = document.getElementById(navMap[name]);
   if (page) page.classList.add('active');
@@ -24,6 +24,8 @@ function showPage(name) {
   if (name === 'jobs') renderAllJobs();
   if (name === 'stats') renderStats();
   if (name === 'admin') { renderAdminBanners(); renderAdminJobTable(); renderAdminDeptList(); }
+  if (name === 'mypage' && currentRole === 'homeroom') { showPage('homeroomMypage'); return; }
+  if (name === 'homeroomMypage') renderHomeroomMypage();
 }
 
 // ══════════════════════════════
@@ -593,7 +595,7 @@ function updateHeader() {
     userChip.style.display = 'flex';
     document.getElementById('userAvatar').textContent = currentUser.icon;
     document.getElementById('userName').textContent = currentUser.name;
-    navMypage.style.display = currentRole === 'student' ? 'block' : 'none';
+    navMypage.style.display = (currentRole === 'student' || currentRole === 'homeroom') ? 'block' : 'none';
     navAdmin.style.display = currentRole === 'admin' ? 'block' : 'none';
     navHomeroom.style.display = currentRole === 'homeroom' ? 'block' : 'none';
     // 비번변경 버튼: 담임교사 + 학생 모두
@@ -684,9 +686,7 @@ function loadSampleClassData() {
 // ══════════════════════════════
 // 취업현황 모드 전환 (현황보기/올해관리)
 // ══════════════════════════════
-let statsMode = 0; // 0=현황보기, 1=올해관리
-let mgRecords = []; // 임시 입력 데이터
-let mgCurrentDept = '';
+let statsMode = 0;
 
 function switchStatsMode(idx) {
   statsMode = idx;
@@ -708,146 +708,187 @@ function switchStatsMode(idx) {
   }
 }
 
+// ══════════════════════════════
+// 올해 관리 - 학과탭→반탭→학생목록 인라인 수정
+// ══════════════════════════════
+let mgCurrentDept = '';
+let mgCurrentClass = '';
+let mgRecords = [];
+
 function renderManageSection() {
   const isAdmin = currentRole === 'admin';
-  const descEl = document.getElementById('manageRoleDesc');
-  const tabsEl = document.getElementById('manageDeptTabs');
-  const titleEl = document.getElementById('mgTableTitle');
+  const descEl  = document.getElementById('manageRoleDesc');
   if (!descEl) return;
 
+  // 로컬스토리지에서 데이터 로드
+  try {
+    const saved = localStorage.getItem('mgRecords_' + new Date().getFullYear());
+    if (saved) mgRecords = JSON.parse(saved);
+  } catch(e) {}
+
   if (isAdmin) {
-    descEl.innerHTML = '⚙️ <strong>관리자</strong> — 전체 학과 취업·진로 현황을 입력·관리합니다';
-    // 전체 학과 탭
-    const depts = ['전체', ...SAMPLE_STATS.map(s=>s.dept)];
-    tabsEl.innerHTML = depts.map((d,i)=>`
+    descEl.innerHTML = '⚙️ <strong>관리자</strong> — 전체 학과 취업·진로 현황을 관리합니다';
+    const depts = getActiveDeptNames();
+    document.getElementById('manageDeptTabs').innerHTML = depts.map((d,i)=>`
       <button class="filter-btn ${i===0?'active':''}" onclick="selectMgDept('${d}',this)"
         style="font-size:12px;padding:5px 12px">${d}</button>`).join('');
-    mgCurrentDept = '';
+    mgCurrentDept = depts[0] || '';
   } else {
-    // 담임교사: 본인 학과만
     const dept = currentUser.dept || '';
     const code = currentUser.classCode || '';
-    descEl.innerHTML = `👩‍🏫 <strong>담임교사</strong> — ${dept} ${code}반 학생들의 취업·진로 현황을 입력합니다`;
-    tabsEl.innerHTML = `<span style="background:#e8eef7;color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600">${dept} ${code}반</span>`;
+    descEl.innerHTML = `👩‍🏫 <strong>담임교사</strong> — ${dept} ${code}반`;
+    document.getElementById('manageDeptTabs').innerHTML =
+      `<span style="background:#e8eef7;color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600">${dept}</span>`;
     mgCurrentDept = dept;
-    if(titleEl) titleEl.textContent = `${dept} ${code}반 올해 취업·진로 현황`;
   }
-  renderMgTable();
+  renderMgClassTabs();
 }
 
 function selectMgDept(dept, btn) {
   document.querySelectorAll('#manageDeptTabs .filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  mgCurrentDept = dept === '전체' ? '' : dept;
-  const titleEl = document.getElementById('mgTableTitle');
-  if(titleEl) titleEl.textContent = (mgCurrentDept||'전체') + ' 올해 취업·진로 현황';
-  renderMgTable();
+  mgCurrentDept = dept;
+  mgCurrentClass = '';
+  renderMgClassTabs();
 }
 
-function toggleMgFields() {
-  const type = document.getElementById('mgType').value;
-  const jf = document.getElementById('mgJobFields');
-  const cf = document.getElementById('mgCollegeFields');
-  if (type === '취업') { jf.style.display='grid'; cf.style.display='none'; }
-  else if (type === '진학') { jf.style.display='none'; cf.style.display='grid'; }
-  else { jf.style.display='none'; cf.style.display='none'; }
-}
-
-function addMgRecord() {
-  const name = document.getElementById('mgName').value.trim();
-  const sid  = document.getElementById('mgStudentId').value.trim();
-  const type = document.getElementById('mgType').value;
-  if (!name || !sid) { showToast('⚠️ 이름과 학번을 입력해주세요'); return; }
-
-  const dept = mgCurrentDept || currentUser.dept || '';
-  let record = { name, sid, dept, type, year: new Date().getFullYear() };
-
-  if (type === '취업') {
-    record.company = document.getElementById('mgCompany').value.trim();
-    record.job     = document.getElementById('mgJob').value.trim();
-    record.salary  = document.getElementById('mgSalary').value.trim();
-  } else if (type === '진학') {
-    record.company = document.getElementById('mgUniv').value.trim();
-    record.job     = document.getElementById('mgMajor').value.trim();
-    record.salary  = document.getElementById('mgAdmission').value;
-  }
-
-  if (mgEditIdx >= 0) {
-    // 수정 모드
-    mgRecords[mgEditIdx] = record;
-    showToast('✅ ' + name + ' 학생 정보가 수정되었습니다');
-    cancelMgEdit();
+function renderMgClassTabs() {
+  const tabsEl = document.getElementById('manageClassTabs');
+  const panel  = document.getElementById('manageStudentPanel');
+  const hint   = document.getElementById('manageSelectHint');
+  // 반 탭: 1~5반 (학생데이터 기준으로 실제 있는 반만)
+  const classes = ['1반','2반','3반'];
+  tabsEl.innerHTML = classes.map((c,i)=>`
+    <button class="filter-btn ${mgCurrentClass===c?'active':''}" onclick="selectMgClass('${c}',this)"
+      style="font-size:12px;padding:5px 12px">${c}</button>`).join('');
+  if (!mgCurrentClass) {
+    panel.style.display = 'none';
+    hint.style.display = 'block';
   } else {
-    // 신규 추가
-    mgRecords.push(record);
-    showToast('✅ ' + name + ' 학생 정보가 추가되었습니다');
-    ['mgName','mgStudentId','mgCompany','mgJob','mgSalary','mgUniv','mgMajor'].forEach(id=>{
-      const el=document.getElementById(id); if(el) el.value='';
-    });
+    renderMgStudentTable();
   }
-
-  try { localStorage.setItem('mgRecords_' + new Date().getFullYear(), JSON.stringify(mgRecords)); } catch(e) {}
-  renderMgTable();
 }
 
-function deleteMgRecord(idx) {
+function selectMgClass(cls, btn) {
+  document.querySelectorAll('#manageClassTabs .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  mgCurrentClass = cls;
+  document.getElementById('manageStudentPanel').style.display = 'block';
+  document.getElementById('manageSelectHint').style.display = 'none';
+  const classNum = cls.replace('반','');
+  document.getElementById('mgTableTitle').textContent = `${mgCurrentDept} ${cls} 취업·진로 현황`;
+  renderMgStudentTable();
+}
+
+function renderMgStudentTable() {
+  const tbody = document.getElementById('mgRecordTable');
+  if (!tbody) return;
+  const classNum = mgCurrentClass.replace('반','');
+
+  // 학생 목록: mgRecords에서 해당 학과+반 필터 (없으면 더미 행 표시)
+  let students = mgRecords.filter(r => r.dept === mgCurrentDept && String(r.classNum) === String(classNum));
+
+  // 학생 없으면 신규 행 추가 가능하도록 빈 행 하나 표시
+  const typeOpts = ['취업','진학','미취업','군입대','기타'].map(t=>`<option>${t}</option>`).join('');
+
+  const rowHtml = (r, idx, isNew) => {
+    const iid = isNew ? 'new' : idx;
+    return `<tr id="mgRow_${iid}" style="border-bottom:1px solid var(--gray-100)">
+      <td style="padding:8px 10px"><input id="mgR_name_${iid}" value="${r.name||''}" placeholder="이름"
+        style="width:60px;border:1px solid var(--gray-200);border-radius:6px;padding:5px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif"></td>
+      <td style="padding:8px 10px;text-align:center"><input id="mgR_sid_${iid}" value="${r.sid||''}" placeholder="학번" maxlength="4"
+        style="width:52px;border:1px solid var(--gray-200);border-radius:6px;padding:5px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif;text-align:center"></td>
+      <td style="padding:8px 10px;text-align:center">
+        <select id="mgR_type_${iid}" style="border:1px solid var(--gray-200);border-radius:6px;padding:5px 6px;font-size:12px;font-family:'Noto Sans KR',sans-serif">
+          ${['취업','진학','미취업','군입대','기타'].map(t=>`<option ${r.type===t?'selected':''}>${t}</option>`).join('')}
+        </select></td>
+      <td style="padding:8px 10px"><input id="mgR_company_${iid}" value="${r.company||''}" placeholder="업체/대학"
+        style="width:110px;border:1px solid var(--gray-200);border-radius:6px;padding:5px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif"></td>
+      <td style="padding:8px 10px"><input id="mgR_job_${iid}" value="${r.job||''}" placeholder="직종/학과"
+        style="width:100px;border:1px solid var(--gray-200);border-radius:6px;padding:5px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif"></td>
+      <td style="padding:8px 10px"><input id="mgR_salary_${iid}" value="${r.salary||''}" placeholder="급여/전형"
+        style="width:90px;border:1px solid var(--gray-200);border-radius:6px;padding:5px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif"></td>
+      <td style="padding:8px 10px;text-align:center;white-space:nowrap">
+        <button onclick="saveMgRow('${iid}',${isNew})" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif">💾</button>
+        ${!isNew?`<button onclick="deleteMgRow(${idx})" style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--danger);cursor:pointer;margin-left:4px">🗑️</button>`:''}
+      </td>
+    </tr>`;
+  };
+
+  const existingRows = students.map((r,i) => rowHtml(r, mgRecords.indexOf(r), false)).join('');
+  const newRow = rowHtml({dept:mgCurrentDept, classNum}, 'new', true);
+
+  tbody.innerHTML = existingRows + `
+    <tr><td colspan="7" style="padding:6px 10px;background:var(--gray-50)">
+      <span style="font-size:11px;color:var(--gray-400)">➕ 신규 입력</span>
+    </td></tr>` + newRow;
+}
+
+function saveMgRow(iid, isNew) {
+  const get = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const classNum = mgCurrentClass.replace('반','');
+  const record = {
+    name:     get(`mgR_name_${iid}`),
+    sid:      get(`mgR_sid_${iid}`),
+    type:     get(`mgR_type_${iid}`),
+    company:  get(`mgR_company_${iid}`),
+    job:      get(`mgR_job_${iid}`),
+    salary:   get(`mgR_salary_${iid}`),
+    dept:     mgCurrentDept,
+    classNum: classNum,
+    year:     new Date().getFullYear(),
+  };
+  if (!record.name) { showToast('⚠️ 이름을 입력해주세요'); return; }
+
+  if (isNew) {
+    mgRecords.push(record);
+  } else {
+    mgRecords[parseInt(iid)] = record;
+  }
+  try { localStorage.setItem('mgRecords_' + new Date().getFullYear(), JSON.stringify(mgRecords)); } catch(e) {}
+  showToast('✅ ' + record.name + ' 저장됐습니다');
+  renderMgStudentTable();
+}
+
+function deleteMgRow(idx) {
   if (!confirm('삭제하시겠습니까?')) return;
   mgRecords.splice(idx, 1);
   try { localStorage.setItem('mgRecords_' + new Date().getFullYear(), JSON.stringify(mgRecords)); } catch(e) {}
-  renderMgTable();
-  showToast('🗑️ 삭제되었습니다');
+  renderMgStudentTable();
+  showToast('🗑️ 삭제됐습니다');
 }
 
-let mgEditIdx = -1; // -1이면 신규추가, 0이상이면 수정 중
-
-function editMgRecord(idx) {
-  const r = mgRecords[idx];
-  if (!r) return;
-  mgEditIdx = idx;
-
-  // 폼에 데이터 채우기
-  document.getElementById('mgName').value      = r.name || '';
-  document.getElementById('mgStudentId').value = r.sid  || '';
-  document.getElementById('mgType').value      = r.type || '취업';
-  toggleMgFields();
-
-  if (r.type === '취업') {
-    document.getElementById('mgCompany').value = r.company || '';
-    document.getElementById('mgJob').value     = r.job     || '';
-    document.getElementById('mgSalary').value  = r.salary  || '';
-  } else if (r.type === '진학') {
-    document.getElementById('mgUniv').value      = r.company   || '';
-    document.getElementById('mgMajor').value     = r.job       || '';
-    document.getElementById('mgAdmission').value = r.salary    || '특성화고 전형';
-  }
-
-  // 버튼 텍스트 변경
-  const addBtn = document.querySelector('[onclick="addMgRecord()"]');
-  if (addBtn) {
-    addBtn.textContent = '✏️ 수정 저장';
-    addBtn.style.background = 'var(--accent)';
-  }
-
-  // 취소 버튼 표시
-  const cancelBtn = document.getElementById('mgCancelBtn');
-  if (cancelBtn) cancelBtn.style.display = 'inline-block';
-
-  // 폼으로 스크롤
-  document.getElementById('mgName').focus();
-  showToast('✏️ 수정 모드 — 내용을 변경 후 저장하세요');
+// ══════════════════════════════
+// 담임교사 마이페이지
+// ══════════════════════════════
+function renderHomeroomMypage() {
+  const dept = currentUser.dept || '-';
+  const code = currentUser.classCode || '-';
+  const el = document.getElementById('hrDept');
+  if (el) el.textContent = dept;
+  const cl = document.getElementById('hrClass');
+  if (cl) cl.textContent = code + '반';
+  const idEl = document.getElementById('hrId');
+  if (idEl) idEl.textContent = dept.substring(0,2) + '_' + code;
 }
 
-function cancelMgEdit() {
-  mgEditIdx = -1;
-  ['mgName','mgStudentId','mgCompany','mgJob','mgSalary','mgUniv','mgMajor'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('mgType').value = '취업';
-  toggleMgFields();
-  const addBtn = document.querySelector('[onclick="addMgRecord()"]');
-  if (addBtn) { addBtn.textContent = '➕ 추가'; addBtn.style.background = 'var(--primary)'; }
-  const cancelBtn = document.getElementById('mgCancelBtn');
-  if (cancelBtn) cancelBtn.style.display = 'none';
+function doHrChangePw() {
+  const cur  = document.getElementById('hrCurPw').value;
+  const nw   = document.getElementById('hrNewPw').value;
+  const nw2  = document.getElementById('hrNewPw2').value;
+  const errEl = document.getElementById('hrPwError');
+  errEl.style.display = 'none';
+
+  const key = 'hrPw_' + (currentUser.dept||'') + '_' + (currentUser.classCode||'');
+  const stored = localStorage.getItem(key) || currentUser.classCode || '';
+
+  if (cur !== stored) { errEl.textContent = '현재 비밀번호가 올바르지 않습니다'; errEl.style.display='block'; return; }
+  if (nw.length < 4)  { errEl.textContent = '새 비밀번호는 4자 이상이어야 합니다'; errEl.style.display='block'; return; }
+  if (nw !== nw2)     { errEl.textContent = '새 비밀번호가 일치하지 않습니다'; errEl.style.display='block'; return; }
+
+  localStorage.setItem(key, nw);
+  ['hrCurPw','hrNewPw','hrNewPw2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  showToast('✅ 비밀번호가 변경됐습니다');
 }
 
 function renderMgTable() {
