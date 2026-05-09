@@ -1,862 +1,492 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>삼일공업고등학교 취업정보 포털</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>삼일공업고등학교 취업정보 포털</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#1A3A6B;--primary-light:#2E5FAD;--accent:#E8740A;--accent-light:#FF9E3A;
+  --bg:#F4F6FA;--card:#fff;--text:#1C2B3A;--text-sub:#5A6A7E;--border:#DDE3EE;
+  --nav-h:60px;--radius:12px;--shadow:0 2px 12px rgba(26,58,107,.10)
+}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);padding-top:var(--nav-h)}
+nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--primary);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px}
+.nav-title{color:#fff;font-weight:700;font-size:16px}
+.nav-title span{color:rgba(255,255,255,.65);font-size:10px;display:block;font-weight:400}
+.nav-menu{display:flex;gap:4px;align-items:center}
+.nav-menu a{color:rgba(255,255,255,.8);text-decoration:none;padding:7px 14px;border-radius:8px;font-size:14px;font-weight:500;transition:.2s}
+.nav-menu a:hover,.nav-menu a.active{background:rgba(255,255,255,.15);color:#fff}
+.nav-login{background:var(--accent) !important;color:#fff !important}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{width:22px;height:2px;background:#fff;border-radius:2px}
+@media(max-width:768px){
+  .nav-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;background:var(--primary);flex-direction:column;padding:12px}
+  .nav-menu.open{display:flex}
+  .nav-menu a{padding:12px 16px}
+  .hamburger{display:flex}
+}
+.hero{background:var(--primary);padding:40px 24px 36px;color:#fff;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.hero-inner{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;font-size:12px;margin-bottom:16px}
+.hero h1{font-size:28px;font-weight:700;margin-bottom:4px;line-height:1.3}
+.hero h1 span{color:var(--accent-light);display:block}
+.hero p{font-size:13px;opacity:.7;margin-bottom:28px}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:860px;margin:0 auto}
+.stat-card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:14px 8px;text-align:center}
+.stat-icon{font-size:20px;margin-bottom:4px}
+.stat-num{font-size:22px;font-weight:700;line-height:1}
+.stat-label{font-size:10px;color:rgba(255,255,255,.7);margin-top:3px}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(3,1fr)}.stat-card:nth-child(4),.stat-card:nth-child(5){display:none}}
+.container{max-width:1100px;margin:0 auto;padding:24px 16px}
+.section-title{font-size:17px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:4px;height:20px;background:var(--accent);border-radius:2px;display:block}
+.banner-slider{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;margin-bottom:28px}
+.banner-slider::-webkit-scrollbar{display:none}
+.banner-item{flex:0 0 280px;border-radius:10px;padding:18px;color:#fff;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;min-height:90px;transition:.2s}
+.banner-item:hover{transform:translateY(-2px)}
+.banner-title{font-size:14px;font-weight:600}
+.banner-date{font-size:11px;opacity:.75;margin-top:4px}
+.banner-arrow{text-align:right;font-size:16px;margin-top:8px}
+.jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:16px}
+.job-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:.2s;border:1px solid var(--border)}
+.job-card:hover{transform:translateY(-2px);border-color:var(--primary-light)}
+.job-company{font-size:12px;color:var(--text-sub);margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.job-recommend{background:var(--accent);color:#fff;font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600}
+.job-title{font-size:15px;font-weight:700;margin-bottom:8px}
+.job-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.job-tag{background:var(--bg);color:var(--text-sub);font-size:11px;padding:3px 8px;border-radius:20px;border:1px solid var(--border)}
+.job-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:10px}
+.job-deadline{font-size:12px;color:var(--text-sub)}
+.job-deadline.urgent{color:#E53E3E;font-weight:600}
+.job-detail{font-size:12px;color:var(--primary-light);font-weight:600}
+.btn-more{display:block;width:100%;text-align:center;padding:11px;border:2px solid var(--border);border-radius:var(--radius);color:var(--text-sub);font-size:14px;cursor:pointer;background:#fff;margin-bottom:28px;transition:.2s}
+.btn-more:hover{border-color:var(--primary);color:var(--primary)}
+.dept-table-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:32px}
+.dept-table{width:100%;border-collapse:collapse}
+.dept-table th{background:var(--primary);color:#fff;padding:11px 14px;font-size:13px;text-align:center}
+.dept-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border);text-align:center}
+.dept-table tr:last-child td{border-bottom:none}
+.dept-table tr:hover td{background:var(--bg)}
+.dept-rate{font-weight:700;color:var(--primary)}
+.dept-total td{background:var(--bg);font-weight:700}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:540px;width:100%;max-height:88vh;overflow-y:auto}
+.modal-header{padding:18px 18px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:#fff}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-sub)}
+.modal-body{padding:18px}
+.modal-company{font-size:12px;color:var(--text-sub);margin-bottom:3px}
+.modal-title{font-size:19px;font-weight:700;margin-bottom:14px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.info-item{background:var(--bg);border-radius:8px;padding:10px 12px}
+.info-label{font-size:11px;color:var(--text-sub);margin-bottom:2px}
+.info-value{font-size:14px;font-weight:600}
+.recommend-box{background:#FFF3E0;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px}
+.modal-desc{font-size:14px;line-height:1.75;white-space:pre-line}
+.apply-btn{display:block;background:var(--primary);color:#fff;text-align:center;padding:13px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;border:none;flex:2}
+.btn-interest{flex:1;padding:13px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:var(--text-sub);transition:.2s}
+.btn-interest.on{border-color:var(--accent);color:var(--accent);background:#FFF3E0}
+.file-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;font-size:13px;cursor:pointer;text-decoration:none;color:var(--text)}
+.file-item:hover{background:var(--border)}
+.login-modal{max-width:380px}
+.login-tab{display:flex;gap:4px;margin-bottom:18px;background:var(--bg);padding:4px;border-radius:10px}
+.login-tab button{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-sub);font-family:inherit}
+.login-tab button.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}
+.form-group{margin-bottom:13px}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary-light)}
+.btn-submit{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+footer{background:var(--primary);color:rgba(255,255,255,.65);text-align:center;padding:20px;font-size:12px}
+footer strong{color:#fff}
+</style>
 </head>
 <body>
 
-<!-- ══════════════ 헤더 ══════════════ -->
-<header>
-  <div class="header-inner">
-    <div class="logo" onclick="showPage('home')">
-      <div class="logo-badge">SI</div>
-      <div class="logo-text">
-        <div class="logo-school">삼일공업고등학교</div>
-        <div class="logo-portal">취업정보 포털</div>
-      </div>
-    </div>
-
-    <nav>
-      <button class="nav-btn active" id="nav-home" onclick="showPage('home')">홈</button>
-      <button class="nav-btn" id="nav-jobs" onclick="showPage('jobs')">채용공고</button>
-      <button class="nav-btn" id="nav-stats" onclick="showPage('stats')">취업현황</button>
-      <button class="nav-btn" id="nav-mypage" onclick="showPage('mypage')" style="display:none">마이페이지</button>
-      <button class="nav-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">관리자</button>
-      <button class="nav-btn" id="nav-homeroom" onclick="showPage('homeroom')" style="display:none">학급현황</button>
-    </nav>
-
-    <div class="header-actions">
-      <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="메뉴">
-        <span></span><span></span><span></span>
-      </button>
-      <button class="btn-login" id="btnLogin" onclick="openLoginModal()">로그인</button>
-      <div class="user-chip" id="userChip">
-        <div class="user-avatar" id="userAvatar">👤</div>
-        <span id="userName">-</span>
-        <button class="btn-logout" id="btnChangePw" onclick="openChangePw()" style="display:none;color:var(--gray-600)">🔑</button>
-        <button class="btn-logout" onclick="doLogout()">로그아웃</button>
-      </div>
-    </div>
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo" style="font-size:10px;line-height:1.2">삼일<br>공고</div>
+    <div class="nav-title">취업정보 포털<span>SAMIL JOBS</span></div>
   </div>
-</header>
+  <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  <div class="nav-menu" id="navMenu">
+    <a href="#home" class="active" onclick="closeMenu()">홈</a>
+    <a href="#jobs" onclick="closeMenu()">채용공고</a>
+    <a href="#status" onclick="closeMenu()">취업현황</a>
+    <a href="#" class="nav-login" onclick="openLogin();closeMenu();return false">로그인</a>
+  </div>
+</nav>
 
-<!-- ══════════════ 홈 페이지 ══════════════ -->
-<div class="page active" id="pageHome">
+<section class="hero" id="home">
+  <div class="hero-inner">
+  <div class="hero-badge">🏫 2025학년도 취업현황</div>
+  <h1>삼일공업고등학교<span>취업정보 포털</span></h1>
+  <p>채용공고부터 취업현황까지, 한 곳에서 확인하세요</p>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-num" id="s-grad">-</div><div class="stat-label">전년도 졸업생</div></div>
+    <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-num" id="s-rate">-</div><div class="stat-label">전년도 취업률</div></div>
+    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-num" id="s-active">-</div><div class="stat-label">진행중 공고</div></div>
+    <div class="stat-card"><div class="stat-icon">⏰</div><div class="stat-num" id="s-close">-</div><div class="stat-label">마감임박</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num" id="s-done">-</div><div class="stat-label">올해 마감</div></div>
+  </div>
+  </div>
+</section>
 
-  <!-- 히어로 -->
-  <div class="hero">
-    <div class="hero-inner">
-      <div class="hero-text">
-        <div class="hero-tag">🏫 2025학년도 취업현황</div>
-        <h1 class="hero-title">삼일공업고등학교<br><span>취업정보 포털</span></h1>
-        <p class="hero-sub">채용공고부터 취업현황까지, 한 곳에서 확인하세요</p>
-        <div class="hero-cta">
-          <button class="btn-primary" onclick="showPage('jobs')">📋 채용공고 보기</button>
-          <button class="btn-secondary" onclick="showPage('stats')">📊 취업현황 보기</button>
-        </div>
-      </div>
-      <div class="hero-stats">
-        <div class="stat-card">
-          <div class="stat-num">89<span style="font-size:16px">%</span></div>
-          <div class="stat-label">취업률</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">142</div>
-          <div class="stat-label">취업자 수</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">87</div>
-          <div class="stat-label">협력업체</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">12</div>
-          <div class="stat-label">진행중 공고</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">38</div>
-          <div class="stat-label">지원자 수</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">10</div>
-          <div class="stat-label">개설 학과</div>
-        </div>
-      </div>
-    </div>
+<div class="container">
+  <div class="section-title">공지 및 안내</div>
+  <div class="banner-slider" id="banners"></div>
+
+  <div id="jobs">
+    <div class="section-title">최신 채용공고</div>
+    <div class="jobs-grid" id="jobList"></div>
+    <button class="btn-more" id="btnMore" onclick="loadMore()">공고 더 보기</button>
   </div>
 
-  <!-- ⑬ 배너 (연결된 배너 없으면 미표시) -->
-  <div id="homeBannerSection" style="display:none">
-    <div class="section" style="padding-bottom:0">
-      <div class="container">
-        <div id="homeBannerList" style="display:flex;flex-direction:column;gap:8px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 최신 채용공고 -->
-  <div class="section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">최신 채용공고</h2>
-        <button class="btn-more" onclick="showPage('jobs')">전체보기 →</button>
-      </div>
-      <div class="jobs-grid" id="homeJobsGrid"></div>
-    </div>
-  </div>
-
-  <!-- 취업현황 미리보기 -->
-  <div class="section" style="background:var(--white); padding:40px 0;">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">학과별 취업현황</h2>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>학과</th>
-              <th>졸업생</th>
-              <th>취업자</th>
-              <th>취업률</th>
-            </tr>
-          </thead>
-          <tbody id="homeStatsTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 채용공고 페이지 ══════════════ -->
-<div class="page" id="pageJobs">
-  <div class="section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">채용공고</h2>
-        <span id="jobCount" style="font-size:13px;color:var(--gray-400)"></span>
-      </div>
-
-      <div class="filter-bar">
-        <div class="filter-group" id="statusFilters">
-          <button class="filter-btn active" onclick="filterJobs('all',this)">전체</button>
-          <button class="filter-btn" onclick="filterJobs('open',this)">진행중</button>
-          <button class="filter-btn" onclick="filterJobs('rec',this)">학교장추천</button>
-          <button class="filter-btn" onclick="filterJobs('closed',this)">마감</button>
-        </div>
-        <select class="filter-btn" id="yearFilter" onchange="renderAllJobs()"
-          style="padding:6px 12px;cursor:pointer;border-radius:20px;">
-          <option value="">전체 연도</option>
-        </select>
-        <div class="search-box">
-          <span>🔍</span>
-          <input type="text" placeholder="업체명, 직종 검색" id="jobSearch" oninput="searchJobs()">
-        </div>
-      </div>
-
-      <div class="jobs-grid" id="allJobsGrid"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 취업현황 페이지 ══════════════ -->
-<div class="page" id="pageStats">
-  <div class="section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">취업현황</h2>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div id="statsModeTab" style="display:none;background:var(--gray-100);border-radius:8px;padding:3px;display:flex;gap:2px">
-            <button id="smtab0" onclick="switchStatsMode(0)"
-              style="padding:6px 14px;border:none;border-radius:6px;background:var(--white);font-size:12px;font-weight:600;color:var(--primary);cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:var(--shadow-sm)">
-              📊 현황 보기
-            </button>
-            <button id="smtab1" onclick="switchStatsMode(1)"
-              style="padding:6px 14px;border:none;border-radius:6px;background:transparent;font-size:12px;font-weight:500;color:var(--gray-600);cursor:pointer;font-family:'Noto Sans KR',sans-serif">
-              ✏️ 올해 관리
-            </button>
-          </div>
-          <select id="statsYearFilter" class="filter-btn"
-            style="padding:8px 14px;border-radius:8px;cursor:pointer"
-            onchange="renderStats();renderStatsBoxes()">
-          </select>
-        </div>
-      </div>
-
-      <!-- 현황 보기 섹션 -->
-      <div id="statsModeView">
-        <div id="statsBoxContainer" style="margin-bottom:24px"></div>
-
-        <!-- ① 학과별 취업현황 요약 테이블 -->
-        <div class="table-wrap" style="margin-bottom:20px">
-          <div class="table-head">
-            <span class="table-title">📊 학과별 취업현황</span>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>학과</th>
-                <th>졸업생</th>
-                <th>취업희망</th>
-                <th>취업자</th>
-                <th>취업률</th>
-                <th style="text-align:center" id="thDeptDetail" style="display:none">상세보기</th>
-              </tr>
-            </thead>
-            <tbody id="fullStatsTable"></tbody>
-          </table>
-        </div>
-
-        <!-- ② 학과별 상세 취업현황 카드 (관리자/담임교사 전용) -->
-        <div id="deptDetailSection" style="display:none;margin-bottom:20px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <div style="font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
-              <span style="width:4px;height:20px;background:var(--primary);border-radius:2px;display:inline-block"></span>
-              🎓 학과별 상세 취업·진로 현황
-            </div>
-            <span style="font-size:12px;color:var(--gray-400)">담당교사·관리자 전용</span>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px" id="deptFilterTabs"></div>
-          <div id="deptCardsGrid"></div>
-        </div>
-
-        <!-- ③ 주요 취업 업체 현황 -->
-        <div class="table-wrap">
-          <div class="table-head">
-            <span class="table-title">🏢 주요 취업 업체 현황</span>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>업체명</th>
-                <th>취업인원</th>
-                <th>취업연도</th>
-                <th style="text-align:center">상세보기</th>
-              </tr>
-            </thead>
-            <tbody id="companyTable"></tbody>
-          </table>
-        </div>
-
-        <!-- 학과별 상세 모달 -->
-        <div class="modal-overlay" id="deptDetailModal" onclick="if(event.target===this)closeModal('deptDetailModal')">
-          <div class="modal" style="max-width:780px;max-height:90vh;overflow-y:auto">
-            <div class="modal-header" style="position:sticky;top:0;z-index:10">
-              <button class="modal-close" onclick="closeModal('deptDetailModal')">✕</button>
-              <div class="modal-company" id="deptModalName">-</div>
-              <div class="modal-position" id="deptModalMeta">-</div>
-            </div>
-            <div style="display:flex;border-bottom:1px solid var(--gray-200);background:var(--white);position:sticky;top:72px;z-index:9">
-              <button id="dtab0" onclick="switchDeptTab(0)" style="flex:1;padding:11px 8px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--primary);color:var(--primary);font-family:'Noto Sans KR',sans-serif">✅ 취업자 목록</button>
-              <button id="dtab1" onclick="switchDeptTab(1)" style="flex:1;padding:11px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">🏫 진학자 목록</button>
-              <button id="dtab2" onclick="switchDeptTab(2)" style="flex:1;padding:11px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">📊 연도별 추이</button>
-            </div>
-            <div id="dtabPanel0" style="padding:20px">
-              <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-                <input type="text" id="deptStudentSearch" placeholder="🔍 이름·업체명 검색" oninput="renderDeptStudents()" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:8px 12px;font-size:13px;outline:none;font-family:'Noto Sans KR',sans-serif;width:200px">
-                <select id="deptJobFilter" onchange="renderDeptStudents()" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif">
-                  <option value="">전체 직종</option>
-                  <option value="생산기술">생산기술</option>
-                  <option value="품질관리">품질관리</option>
-                  <option value="설비보전">설비보전</option>
-                  <option value="공정관리">공정관리</option>
-                </select>
-              </div>
-              <table style="width:100%;border-collapse:collapse">
-                <thead><tr>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">취업업체</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">직종</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">급여</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">취업연도</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">구분</th>
-                </tr></thead>
-                <tbody id="deptStudentTable"></tbody>
-              </table>
-            </div>
-            <div id="dtabPanel1" style="display:none;padding:20px">
-              <table style="width:100%;border-collapse:collapse">
-                <thead><tr>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">진학 대학</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">학과</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">전형</th>
-                  <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">연도</th>
-                </tr></thead>
-                <tbody id="deptCollegeTable"></tbody>
-              </table>
-            </div>
-            <div id="dtabPanel2" style="display:none;padding:20px">
-              <canvas id="deptTrendChart" width="700" height="260"></canvas>
-              <div id="deptTrendTable" style="margin-top:16px"></div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- statsModeView 닫기 -->
-
-      <!-- ── 올해 관리 섹션 (관리자/담임교사 전용) ── -->
-      <div id="statsModeManage" style="display:none">
-        <div style="font-size:13px;color:var(--gray-400);margin-bottom:12px"><span id="manageRoleDesc"></span></div>
-        <!-- 학과 탭 -->
-        <div id="manageDeptTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
-        <!-- 반 탭 -->
-        <div id="manageClassTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
-        <!-- 학생 목록 테이블 -->
-        <div id="manageStudentPanel" style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;display:none">
-          <div style="padding:12px 18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:14px;font-weight:700;color:var(--text)" id="mgTableTitle">학생 목록</span>
-            <span style="font-size:12px;color:var(--gray-400)">※ 각 행에서 직접 수정 가능</span>
-          </div>
-          <div style="overflow-x:auto">
-            <table style="width:100%;border-collapse:collapse;min-width:700px">
-              <thead><tr>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">학번</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">구분</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">업체/대학</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">직종/학과</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">급여/전형</th>
-                <th style="padding:9px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">저장</th>
-              </tr></thead>
-              <tbody id="mgRecordTable"></tbody>
-            </table>
-          </div>
-        </div>
-        <div id="manageSelectHint" style="text-align:center;padding:40px;color:var(--gray-400);font-size:13px">
-          👆 학과와 반을 선택하면 학생 목록이 표시됩니다
-        </div>
-      </div><!-- statsModeManage 닫기 -->
-
-      <!-- 업체 상세 모달 -->
-      <div class="modal-overlay" id="companyDetailModal" onclick="if(event.target===this)closeModal('companyDetailModal')">
-        <div class="modal" style="max-width:680px">
-          <div class="modal-header">
-            <button class="modal-close" onclick="closeModal('companyDetailModal')">✕</button>
-            <div class="modal-company" id="compDetailCompany">-</div>
-            <div class="modal-position" id="compDetailYear">-</div>
-          </div>
-          <div class="modal-body" style="padding:20px">
-            <div id="compDetailNotice" style="font-size:12px;color:var(--gray-400);margin-bottom:12px;padding:8px 12px;background:var(--gray-50);border-radius:8px;display:none"></div>
-            <table style="width:100%;border-collapse:collapse" id="compDetailTableWrap">
-              <thead><tr>
-                <th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th>
-                <th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">학과</th>
-                <th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">취업연도</th>
-                <th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">상세</th>
-              </tr></thead>
-              <tbody id="compDetailTable"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 학생 통합 프로필 모달 -->
-      <div class="modal-overlay" id="studentProfileModal" onclick="if(event.target===this)closeModal('studentProfileModal')">
-        <div class="modal" style="max-width:720px;max-height:90vh;overflow-y:auto">
-          <div class="modal-header" style="position:sticky;top:0;z-index:10">
-            <button class="modal-close" onclick="closeModal('studentProfileModal')">✕</button>
-            <div class="modal-company" id="profName">-</div>
-            <div class="modal-position" id="profMeta">-</div>
-          </div>
-          <div style="padding:20px">
-            <div style="margin-bottom:20px">
-              <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--primary);border-radius:2px;display:inline-block"></span>📋 출결 현황</div>
-              <div style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">학년</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">수업일수</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">결석</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">지각</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">조퇴</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">결과</th></tr></thead><tbody id="profAttend"></tbody></table></div>
-            </div>
-            <div style="margin-bottom:20px">
-              <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--primary);border-radius:2px;display:inline-block"></span>📊 교과 성적</div>
-              <div style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">교과</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">과목명</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">단위</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">원점수</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">성취도</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">등급</th></tr></thead><tbody id="profGrades"></tbody></table></div>
-            </div>
-            <div style="margin-bottom:20px">
-              <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--accent);border-radius:2px;display:inline-block"></span>🏅 자격증</div>
-              <div id="profCerts" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-            </div>
-            <div style="margin-bottom:20px">
-              <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--success);border-radius:2px;display:inline-block"></span>🎯 동아리 활동</div>
-              <div style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">학년</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">동아리명</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">활동 내용</th></tr></thead><tbody id="profClub"></tbody></table></div>
-            </div>
-            <div style="margin-bottom:8px">
-              <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:#7c3aed;border-radius:2px;display:inline-block"></span>🏫 학급임원 사항</div>
-              <div id="profLeader" style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">학년</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">학기</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">직책</th></tr></thead><tbody id="profLeaderTable"></tbody></table></div>
-            </div>
-            <div style="font-size:11px;color:var(--gray-400);text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--gray-100)">📌 출결·성적·동아리·임원 데이터는 생활기록부 PDF 업로드 후 자동 연계됩니다</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 마이페이지 ══════════════ -->
-<div class="page" id="pageMypage">
-  <div class="section">
-    <div class="container">
-      <div class="section-header" style="margin-bottom:20px">
-        <h2 class="section-title" id="mypageTitle">마이페이지</h2>
-        <button class="btn-outline" onclick="openChangePw()" style="font-size:13px">🔑 비밀번호 변경</button>
-      </div>
-      <div id="myDataEmpty" style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:32px;text-align:center;margin-bottom:20px">
-        <div style="font-size:36px;margin-bottom:12px">📋</div>
-        <div style="font-size:15px;font-weight:600;color:var(--gray-600);margin-bottom:6px">생활기록부 데이터가 없습니다</div>
-        <div style="font-size:13px;color:var(--gray-400)">담임선생님이 생활기록부를 업로드하면 내 데이터가 자동으로 표시됩니다</div>
-      </div>
-      <div id="myDataSection" style="display:none">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="mySpecCards"></div>
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden">
-          <div style="display:flex;border-bottom:1px solid var(--gray-200)">
-            <button class="my-tab active" id="mytab0" onclick="switchMyTab(0)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--primary);color:var(--primary);font-family:'Noto Sans KR',sans-serif">📋 내 정보</button>
-            <button class="my-tab" id="mytab1" onclick="switchMyTab(1)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">📊 스펙 비교</button>
-            <button class="my-tab" id="mytab2" onclick="switchMyTab(2)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">🎯 추천 업체</button>
-            <button class="my-tab" id="mytab3" onclick="switchMyTab(3)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">📋 지원현황</button>
-          </div>
-        </div>
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:24px">
-          <div id="mytabPanel0">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-              <div>
-                <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:3px;height:14px;background:var(--primary);border-radius:2px;display:inline-block"></span>📋 출결 현황</div>
-                <table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="padding:7px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left;color:var(--gray-600)">학년</th><th style="padding:7px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">결석</th><th style="padding:7px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">지각</th><th style="padding:7px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">조퇴</th></tr></thead><tbody id="myAttendTable"></tbody></table>
-              </div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block"></span>🏅 자격증</div>
-                <div id="myCertList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-                <div style="font-size:13px;font-weight:700;color:var(--primary);margin:16px 0 10px;display:flex;align-items:center;gap:6px"><span style="width:3px;height:14px;background:var(--success);border-radius:2px;display:inline-block"></span>🎯 동아리</div>
-                <div id="myClubList" style="font-size:12px;color:var(--text-light)"></div>
-              </div>
-            </div>
-            <div style="margin-top:20px">
-              <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:3px;height:14px;background:#7c3aed;border-radius:2px;display:inline-block"></span>🏫 학급임원 사항</div>
-              <div id="myLeaderList" style="font-size:12px;color:var(--text-light)"></div>
-            </div>
-          </div>
-          <div id="mytabPanel1" style="display:none">
-            <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-              <label style="font-size:13px;font-weight:600;color:var(--text)">비교할 업체 선택</label>
-              <select id="compareCompanySelect" class="filter-btn" style="padding:8px 14px;border-radius:8px;cursor:pointer" onchange="renderRadarChart()"><option value="">-- 업체 선택 --</option></select>
-              <span style="font-size:12px;color:var(--gray-400)">선배 취업자 평균 스펙과 비교합니다</span>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
-              <div style="text-align:center"><canvas id="radarChart" width="300" height="300"></canvas><div style="margin-top:10px;display:flex;justify-content:center;gap:20px;font-size:12px"><span><span style="display:inline-block;width:12px;height:12px;background:rgba(26,58,107,0.6);border-radius:2px;margin-right:4px"></span>선배 평균</span><span><span style="display:inline-block;width:12px;height:12px;background:rgba(232,160,32,0.6);border-radius:2px;margin-right:4px"></span>나의 스펙</span></div></div>
-              <div><table style="width:100%;border-collapse:collapse;font-size:12px" id="compareTable"><thead><tr><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left;color:var(--gray-600)">항목</th><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">선배 평균</th><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">나</th><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">차이</th></tr></thead><tbody id="compareTableBody"></tbody></table><div id="compareAdvice" style="margin-top:14px;padding:12px;background:rgba(42,127,255,0.05);border-radius:8px;border-left:3px solid var(--primary);font-size:12px;color:var(--text-light);line-height:1.7;display:none"></div></div>
-            </div>
-          </div>
-          <div id="mytabPanel2" style="display:none"><div style="margin-bottom:16px;font-size:13px;color:var(--gray-600)">내 스펙을 기반으로 선배들이 취업한 업체와 유사도를 분석했습니다.</div><div id="recommendList"></div></div>
-          <div id="mytabPanel3" style="display:none"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">업체명</th><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">직종</th><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">지원일</th><th style="padding:9px 12px;font-size:12px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">구분</th></tr></thead><tbody id="myApplyTable"><tr><td colspan="4" style="padding:28px;text-align:center;color:var(--gray-400)">지원한 공고가 없습니다</td></tr></tbody></table></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 담임교사 마이페이지 ══════════════ -->
-<div class="page" id="pageHomeroomMypage">
-  <div class="section">
-    <div class="container">
-      <div class="section-header" style="margin-bottom:24px">
-        <h2 class="section-title">마이페이지</h2>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:700px">
-        <!-- 담당 학급 정보 -->
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px">
-          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px">🏫 담당 학급 정보</div>
-          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
-            <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-400)">학과</span><span id="hrDept" style="font-weight:600">-</span></div>
-            <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-400)">담당 반</span><span id="hrClass" style="font-weight:600">-</span></div>
-            <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-400)">아이디</span><span id="hrId" style="font-weight:600;font-family:monospace">-</span></div>
-          </div>
-        </div>
-        <!-- 비밀번호 변경 -->
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px">
-          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px">🔑 비밀번호 변경</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <input class="form-input" id="hrCurPw" type="password" placeholder="현재 비밀번호" style="font-size:13px;padding:9px 12px">
-            <input class="form-input" id="hrNewPw" type="password" placeholder="새 비밀번호 (4자 이상)" style="font-size:13px;padding:9px 12px">
-            <input class="form-input" id="hrNewPw2" type="password" placeholder="새 비밀번호 확인" style="font-size:13px;padding:9px 12px" onkeydown="if(event.key==='Enter')doHrChangePw()">
-            <button onclick="doHrChangePw()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">변경하기</button>
-            <div id="hrPwError" style="font-size:12px;color:var(--danger);display:none"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 학급현황 (담임) ══════════════ -->
-<div class="page" id="pageHomeroom">
-  <div class="section">
-    <div class="container">
-      <div class="section-header" style="margin-bottom:20px">
-        <h2 class="section-title" id="homeroomTitle">우리 반 현황</h2>
-        <div style="display:flex;gap:8px">
-          <button class="btn-outline" onclick="exportStudentData('class')" id="btnExcelExport" style="display:none">📥 엑셀 다운로드</button>
-          <button class="btn-outline" onclick="loadSampleClassData()" style="font-size:13px">🧪 샘플 데이터 보기</button>
-          <button class="btn-primary" onclick="document.getElementById('folderInput').click()">📁 생활기록부 폴더 업로드</button>
-        </div>
-      </div>
-      <input type="file" id="folderInput" webkitdirectory multiple accept=".pdf" style="display:none" onchange="handleFolderUpload(event)">
-      <div id="dropZone" style="border:2px dashed var(--gray-200);border-radius:var(--radius);padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:20px" onclick="document.getElementById('folderInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--primary)'" ondragleave="this.style.borderColor='var(--gray-200)'" ondrop="handleDrop(event)">
-        <div style="font-size:40px;margin-bottom:12px">📁</div>
-        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">생활기록부 폴더를 선택하거나 드래그하세요</div>
-        <div style="font-size:13px;color:var(--text-light);margin-bottom:4px">NEIS에서 출력한 학생별 생활기록부 PDF 파일들이 담긴 폴더</div>
-        <div style="font-size:12px;color:var(--gray-400)">파일명 형식: 학번_이름.pdf 또는 이름.pdf</div>
-      </div>
-      <div id="progressArea" style="display:none;margin-bottom:20px">
-        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:20px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:13px;font-weight:600;color:var(--text)" id="progressText">처리 중...</span><span style="font-size:12px;color:var(--gray-400)" id="progressCount">0/0</span></div>
-          <div style="background:var(--gray-100);border-radius:4px;height:8px;overflow:hidden"><div id="progressBar" style="height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:4px;width:0%;transition:width 0.3s"></div></div>
-          <div id="progressLog" style="margin-top:12px;font-size:11px;color:var(--gray-400);max-height:80px;overflow-y:auto;line-height:1.8"></div>
-        </div>
-      </div>
-      <div id="classSummary" style="display:none;margin-bottom:20px">
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
-          <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;font-family:'Montserrat',sans-serif;color:var(--primary)" id="sumTotal">0</div><div style="font-size:12px;color:var(--text-light);margin-top:3px">총 학생 수</div></div>
-          <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;font-family:'Montserrat',sans-serif;color:var(--success)" id="sumPerfect">0</div><div style="font-size:12px;color:var(--text-light);margin-top:3px">개근 학생</div></div>
-          <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;font-family:'Montserrat',sans-serif;color:var(--accent)" id="sumCerts">0</div><div style="font-size:12px;color:var(--text-light);margin-top:3px">평균 자격증 수</div></div>
-          <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;font-family:'Montserrat',sans-serif;color:#7c3aed" id="sumLeader">0</div><div style="font-size:12px;color:var(--text-light);margin-top:3px">임원 경험자</div></div>
-          <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px;text-align:center"><div style="font-size:24px;font-weight:800;font-family:'Montserrat',sans-serif;color:var(--danger)" id="sumAbsent">0</div><div style="font-size:12px;color:var(--text-light);margin-top:3px">결석 보유자</div></div>
-        </div>
-      </div>
-      <div id="classTabBar" style="display:none;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden;margin-bottom:0">
-        <div style="display:flex;border-bottom:1px solid var(--gray-200)">
-          <button class="class-tab active" id="ctab0" onclick="switchClassTab(0)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--primary);color:var(--primary);font-family:'Noto Sans KR',sans-serif">👥 학생 목록</button>
-          <button class="class-tab" id="ctab1" onclick="switchClassTab(1)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">📋 출결 비교</button>
-          <button class="class-tab" id="ctab2" onclick="switchClassTab(2)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">🏅 자격증</button>
-          <button class="class-tab" id="ctab3" onclick="switchClassTab(3)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">🎯 동아리</button>
-          <button class="class-tab" id="ctab4" onclick="switchClassTab(4)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">🏫 임원</button>
-        </div>
-      </div>
-      <div id="classTabContent" style="display:none;background:var(--white);border:1px solid var(--gray-200);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden">
-        <div id="ctabPanel0" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:700px"><thead><tr><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left;white-space:nowrap">이름</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;white-space:nowrap">출결이상</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;white-space:nowrap">자격증</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;white-space:nowrap">동아리</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;white-space:nowrap">임원</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;white-space:nowrap">상세</th></tr></thead><tbody id="classListTable"></tbody></table></div>
-        <div id="ctabPanel1" style="display:none;overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:700px"><thead><tr><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">1학년결석</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">1학년지각</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">2학년결석</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">2학년지각</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">3학년결석</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">3학년지각</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">총계</th></tr></thead><tbody id="classAttendTable"></tbody></table></div>
-        <div id="ctabPanel2" style="display:none;overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">취득 수</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">자격증 목록</th></tr></thead><tbody id="classCertTable"></tbody></table></div>
-        <div id="ctabPanel3" style="display:none;overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">1학년</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">2학년</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">3학년</th></tr></thead><tbody id="classClubTable"></tbody></table></div>
-        <div id="ctabPanel4" style="display:none;overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">임원 횟수</th><th style="padding:10px 12px;font-size:11px;color:var(--gray-600);background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">임원 이력</th></tr></thead><tbody id="classLeaderTable"></tbody></table></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 학생 개인 상세 모달 -->
-  <div class="modal-overlay" id="classStudentModal" onclick="if(event.target===this)closeModal('classStudentModal')">
-    <div class="modal" style="max-width:760px;max-height:92vh;overflow-y:auto">
-      <div class="modal-header" style="position:sticky;top:0;z-index:10">
-        <button class="modal-close" onclick="closeModal('classStudentModal')">✕</button>
-        <div class="modal-company" id="csName">-</div>
-        <div class="modal-position" id="csMeta">-</div>
-      </div>
-      <div style="display:flex;border-bottom:1px solid var(--gray-200);background:var(--white);position:sticky;top:72px;z-index:9">
-        <button id="cstab0" onclick="switchCsTab(0)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--primary);color:var(--primary);font-family:'Noto Sans KR',sans-serif">📋 기본 정보</button>
-        <button id="cstab1" onclick="switchCsTab(1)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">📊 스펙 비교</button>
-        <button id="cstab2" onclick="switchCsTab(2)" style="flex:1;padding:12px 8px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray-400);font-family:'Noto Sans KR',sans-serif">🎯 추천 업체</button>
-      </div>
-      <div id="cstabPanel0" style="padding:20px">
-        <div style="margin-bottom:20px"><div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--primary);border-radius:2px;display:inline-block"></span>📋 출결 현황</div><div style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">학년</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">수업일수</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">결석</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">지각</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">조퇴</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">결과</th></tr></thead><tbody id="csAttend"></tbody></table></div></div>
-        <div style="margin-bottom:20px"><div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--primary);border-radius:2px;display:inline-block"></span>📊 교과 성적</div><div style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">학년/학기</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">과목</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">단위</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">원점수</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">성취도</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">등급</th></tr></thead><tbody id="csGrades"></tbody></table></div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-          <div><div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--accent);border-radius:2px;display:inline-block"></span>🏅 자격증</div><div id="csCerts" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:var(--success);border-radius:2px;display:inline-block"></span>🎯 동아리</div><div id="csClubSimple" style="font-size:12px;color:var(--text-light);line-height:1.8"></div></div>
-        </div>
-        <div style="margin-bottom:20px"><div style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">학년</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">동아리명</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">활동 내용</th></tr></thead><tbody id="csClub"></tbody></table></div></div>
-        <div><div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="width:4px;height:16px;background:#7c3aed;border-radius:2px;display:inline-block"></span>🏫 학급임원 사항</div><div style="background:var(--gray-50);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">학년</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:center;border-bottom:1px solid var(--gray-200)">학기</th><th style="padding:9px 12px;font-size:11px;color:var(--gray-600);text-align:left;border-bottom:1px solid var(--gray-200)">직책</th></tr></thead><tbody id="csLeader"></tbody></table></div></div>
-        <div style="font-size:11px;color:var(--gray-400);text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--gray-100)">📌 NEIS 생활기록부 PDF 업로드 시 자동 파싱된 데이터입니다</div>
-      </div>
-      <div id="cstabPanel1" style="display:none;padding:20px">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap"><label style="font-size:13px;font-weight:600;color:var(--text)">비교 업체 선택</label><select id="csCompareSelect" class="filter-btn" style="padding:8px 14px;border-radius:8px;cursor:pointer" onchange="renderCsRadar()"><option value="">-- 업체 선택 --</option></select><span style="font-size:12px;color:var(--gray-400)">선배 취업자 평균 스펙과 비교</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start"><div style="text-align:center"><canvas id="csRadarChart" width="280" height="280"></canvas><div style="margin-top:8px;display:flex;justify-content:center;gap:16px;font-size:12px"><span><span style="display:inline-block;width:10px;height:10px;background:rgba(26,58,107,0.6);border-radius:2px;margin-right:4px"></span>선배 평균</span><span><span style="display:inline-block;width:10px;height:10px;background:rgba(232,160,32,0.6);border-radius:2px;margin-right:4px"></span>이 학생</span></div></div><div><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left;color:var(--gray-600)">항목</th><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">선배</th><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">학생</th><th style="padding:8px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center;color:var(--gray-600)">차이</th></tr></thead><tbody id="csCompareBody"></tbody></table><div id="csCompareAdvice" style="margin-top:12px;padding:12px;background:rgba(42,127,255,0.05);border-radius:8px;border-left:3px solid var(--primary);font-size:12px;color:var(--text-light);line-height:1.7;display:none"></div></div></div>
-      </div>
-      <div id="cstabPanel2" style="display:none;padding:20px"><div style="margin-bottom:14px;font-size:13px;color:var(--gray-600)">이 학생의 스펙을 기반으로 선배들이 취업한 업체와 유사도를 분석했습니다.</div><div id="csRecommendList"></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 관리자 페이지 ══════════════ -->
-<div class="page" id="pageAdmin">
-  <div class="section">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">관리자 페이지</h2>
-      </div>
-      <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;margin-bottom:16px">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
-          <span>📋 채용공고 관리</span>
-          <button onclick="openJobForm()" class="btn-primary" style="font-size:12px;padding:7px 14px">➕ 공고 등록</button>
-        </div>
-        <div id="adminJobList" style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:13px">
-            <thead><tr>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">업체명</th>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">직무</th>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">마감일</th>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">상태</th>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">지원</th>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">관심</th>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">수정</th>
-              <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">삭제</th>
-            </tr></thead>
-            <tbody id="adminJobTable"></tbody>
-          </table>
-        </div>
-      </div>
-      <div style="margin-top:16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
-          <span>🏫 학과 관리</span>
-          <button onclick="openDeptForm()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">➕ 학과 추가</button>
-        </div>
-        <div style="font-size:12px;color:var(--gray-400);margin-bottom:14px">학과명 변경·합과 시 연도를 지정하면 기존 재학생은 이전 학과명 유지, 신입생부터 새 학과명 적용됩니다.</div>
-        <div id="adminDeptList"></div>
-      </div>
-      <div style="margin-top:16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px">📥 학생 데이터 엑셀 다운로드</div>
-        <div style="font-size:13px;color:var(--text-light);margin-bottom:14px">생활기록부 분석 데이터를 CSV 파일로 다운로드합니다.</div>
-        <div style="display:flex;gap:10px">
-          <button onclick="exportStudentData('all')" style="background:var(--success);color:#fff;border:none;border-radius:var(--radius-sm);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">📥 전체 학생 다운로드</button>
-          <button onclick="exportStudentData('class')" style="background:none;border:1.5px solid var(--primary);border-radius:var(--radius-sm);padding:10px 20px;font-size:13px;font-weight:600;color:var(--primary);cursor:pointer;font-family:'Noto Sans KR',sans-serif">📥 학급별 다운로드</button>
-        </div>
-      </div>
-      <div style="margin-top:16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;">🔑 담임교사 비밀번호 관리</div>
-        <div style="font-size:13px;color:var(--text-light);margin-bottom:16px;">담임교사가 비밀번호를 분실했을 때 초기화해 주세요.</div>
-        <button class="btn-primary" onclick="openModal('resetPwModal')" style="background:var(--primary);border:none;border-radius:var(--radius-sm);padding:10px 22px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">🔄 비밀번호 초기화</button>
-      </div>
-      <div style="margin-top:16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;">
-        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px">📢 메인 배너 관리</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;margin-bottom:12px;align-items:end">
-          <div><label class="form-label" style="font-size:11px">배너 제목</label><input class="form-input" id="bannerTitle" placeholder="예: 취업희망 설문 참여해주세요" style="font-size:13px;padding:8px 12px"></div>
-          <div><label class="form-label" style="font-size:11px">링크 URL</label><input class="form-input" id="bannerLink" placeholder="https://forms.google.com/..." style="font-size:13px;padding:8px 12px"></div>
-          <div><label class="form-label" style="font-size:11px">마감일</label><input class="form-input" id="bannerDeadline" type="date" style="font-size:13px;padding:8px 12px"></div>
-          <div><label class="form-label" style="font-size:11px">색상</label><select class="form-input" id="bannerColor" style="font-size:13px;padding:8px 12px"><option value="blue">파랑</option><option value="gold">노랑</option><option value="green">초록</option><option value="red">빨강</option></select></div>
-        </div>
-        <button onclick="addBanner()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-bottom:14px">➕ 배너 추가</button>
-        <div id="adminBannerList"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 학과 등록/수정 모달 -->
-<div class="modal-overlay" id="deptFormModal" onclick="if(event.target===this)closeModal('deptFormModal')">
-  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
-    <div class="modal-header">
-      <button class="modal-close" onclick="closeModal('deptFormModal')">✕</button>
-      <div class="modal-company" id="deptFormTitle">학과 추가</div>
-      <div class="modal-position">학과 정보를 입력하세요</div>
-    </div>
-    <div style="padding:20px;display:grid;gap:12px">
-      <input type="hidden" id="dfIdx">
-      <div><label class="form-label" style="font-size:11px">학과명 *</label><input class="form-input" id="dfName" placeholder="예: AI반도체과" style="font-size:13px;padding:9px 12px"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="form-label" style="font-size:11px">운영 시작 연도 *</label><input class="form-input" id="dfStartYear" type="number" placeholder="2025" style="font-size:13px;padding:9px 12px"></div>
-        <div><label class="form-label" style="font-size:11px">운영 종료 연도 (현재 운영 중이면 비워두세요)</label><input class="form-input" id="dfEndYear" type="number" placeholder="미입력 = 현재 운영중" style="font-size:13px;padding:9px 12px"></div>
-      </div>
-      <div>
-        <label class="form-label" style="font-size:11px">합과 대상 (이 학과로 합쳐지는 구학과 선택)</label>
-        <div id="dfMergeCheckboxes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;padding:10px;background:var(--gray-50);border-radius:8px;border:1px solid var(--gray-200);min-height:40px"></div>
-        <div style="font-size:11px;color:var(--gray-400);margin-top:4px">선택한 구학과의 데이터를 이 학과에서 통합 조회할 수 있습니다</div>
-      </div>
-      <div><label class="form-label" style="font-size:11px">별칭 (쉼표 구분, 예: 구학과명)</label><input class="form-input" id="dfAlias" placeholder="예: 화공과, 화학과" style="font-size:13px;padding:9px 12px"></div>
-      <div style="display:flex;gap:8px">
-        <button onclick="saveDeptForm()" style="flex:1;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">💾 저장</button>
-        <button onclick="closeModal('deptFormModal')" style="background:none;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px 20px;font-size:13px;color:var(--gray-600);cursor:pointer;font-family:'Noto Sans KR',sans-serif">취소</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════ 채용공고 등록/수정 모달 ══════════════ -->
-<div class="modal-overlay" id="jobFormModal" onclick="if(event.target===this)closeModal('jobFormModal')">
-  <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
-    <div class="modal-header">
-      <button class="modal-close" onclick="closeModal('jobFormModal')">✕</button>
-      <div class="modal-company" id="jobFormTitle">채용공고 등록</div>
-      <div class="modal-position">공고 정보를 입력하세요</div>
-    </div>
-    <div style="padding:20px;display:grid;gap:12px">
-      <input type="hidden" id="jfId">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="form-label" style="font-size:11px">업체명 *</label><input class="form-input" id="jfCompany" placeholder="삼성전자" style="font-size:13px;padding:9px 12px"></div>
-        <div><label class="form-label" style="font-size:11px">직무 *</label><input class="form-input" id="jfTitle" placeholder="반도체 생산기술" style="font-size:13px;padding:9px 12px"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-        <div><label class="form-label" style="font-size:11px">근무지</label><input class="form-input" id="jfLocation" placeholder="수원" style="font-size:13px;padding:9px 12px"></div>
-        <div><label class="form-label" style="font-size:11px">급여</label><input class="form-input" id="jfSalary" placeholder="월 280만원~" style="font-size:13px;padding:9px 12px"></div>
-        <div><label class="form-label" style="font-size:11px">모집인원</label><input class="form-input" id="jfHeadcount" type="number" placeholder="5" style="font-size:13px;padding:9px 12px"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="form-label" style="font-size:11px">마감일</label><input class="form-input" id="jfDeadline" type="date" style="font-size:13px;padding:9px 12px"></div>
-        <div><label class="form-label" style="font-size:11px">태그 (쉼표 구분)</label><input class="form-input" id="jfTags" placeholder="대기업,기숙사,식대제공" style="font-size:13px;padding:9px 12px"></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:16px">
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="jfRec" style="width:16px;height:16px"> 학교장 추천</label>
-        <div style="display:flex;align-items:center;gap:8px"><label class="form-label" style="font-size:11px;margin:0">추천인원</label><input class="form-input" id="jfRecCount" type="number" placeholder="0" style="font-size:13px;padding:6px 10px;width:70px"></div>
-      </div>
-      <div><label class="form-label" style="font-size:11px">상세내용</label><textarea class="form-input" id="jfDetail" rows="3" placeholder="공고 상세 내용" style="font-size:13px;padding:9px 12px;resize:vertical;font-family:'Noto Sans KR',sans-serif"></textarea></div>
-      <div style="display:flex;gap:8px">
-        <button onclick="saveJobForm()" style="flex:1;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">💾 저장</button>
-        <button onclick="closeModal('jobFormModal')" style="background:none;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:12px 20px;font-size:13px;color:var(--gray-600);cursor:pointer;font-family:'Noto Sans KR',sans-serif">취소</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ⑧ 지원자/관심자 확인 모달 -->
-<div class="modal-overlay" id="applicantsModal" onclick="if(event.target===this)closeModal('applicantsModal')">
-  <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
-    <div class="modal-header">
-      <button class="modal-close" onclick="closeModal('applicantsModal')">✕</button>
-      <div class="modal-company" id="applicantsJobTitle">-</div>
-      <div class="modal-position" id="applicantsType">-</div>
-    </div>
-    <div style="padding:20px">
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead><tr>
-          <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">이름</th>
-          <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:left">학과</th>
-          <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">학번</th>
-          <th style="padding:8px 12px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);text-align:center">등록일</th>
-        </tr></thead>
-        <tbody id="applicantsTable"></tbody>
+  <div id="status">
+    <div class="section-title">학과별 취업현황 (전년도)</div>
+    <div class="dept-table-wrap">
+      <table class="dept-table">
+        <thead><tr><th>학과</th><th>졸업인원</th><th>취업자</th><th>진학자</th><th>취업률</th><th>진학률</th></tr></thead>
+        <tbody id="deptTb"></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- ⑧ 담임교사 대리지원 모달 -->
-<div class="modal-overlay" id="classApplyModal" onclick="if(event.target===this)closeModal('classApplyModal')">
-  <div class="modal" style="max-width:500px;max-height:90vh;overflow-y:auto">
-    <div class="modal-header">
-      <button class="modal-close" onclick="closeModal('classApplyModal')">✕</button>
-      <div class="modal-company" id="classApplyJobTitle">-</div>
-      <div class="modal-position">우리 반 학생 지원 처리</div>
-    </div>
-    <div style="padding:20px">
-      <div style="font-size:13px;color:var(--gray-600);margin-bottom:14px">지원할 학생을 선택하세요</div>
-      <div id="classApplyStudentList" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;margin-bottom:14px"></div>
-      <button onclick="submitClassApply()" style="width:100%;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif">✅ 선택 학생 지원 처리</button>
-    </div>
-  </div>
-</div>
-
-<!-- 채용공고 상세 모달 -->
-<div class="modal-overlay" id="jobModal" onclick="closeJobModal(event)">
+<!-- 채용 상세 -->
+<div class="modal-overlay" id="jobModal" onclick="closeModal('jobModal',event)">
   <div class="modal">
     <div class="modal-header">
+      <div><div class="modal-company" id="m-co"></div><div class="modal-title" id="m-title"></div></div>
       <button class="modal-close" onclick="closeModal('jobModal')">✕</button>
-      <div class="modal-company" id="modalCompany">-</div>
-      <div class="modal-position" id="modalPosition">-</div>
     </div>
     <div class="modal-body">
       <div class="info-grid">
-        <div class="info-item"><div class="info-item-label">근무지</div><div class="info-item-value" id="modalLocation">-</div></div>
-        <div class="info-item"><div class="info-item-label">급여</div><div class="info-item-value" id="modalSalary">-</div></div>
-        <div class="info-item"><div class="info-item-label">모집인원</div><div class="info-item-value" id="modalHeadcount">-</div></div>
-        <div class="info-item"><div class="info-item-label">마감일</div><div class="info-item-value" id="modalDeadline">-</div></div>
+        <div class="info-item"><div class="info-label">직무</div><div class="info-value" id="m-job"></div></div>
+        <div class="info-item"><div class="info-label">근무지</div><div class="info-value" id="m-loc"></div></div>
+        <div class="info-item"><div class="info-label">모집인원</div><div class="info-value" id="m-cnt"></div></div>
+        <div class="info-item"><div class="info-label">마감일</div><div class="info-value" id="m-dl"></div></div>
       </div>
-      <div class="detail-section"><div class="detail-label">상세내용</div><div class="detail-content" id="modalDetail">-</div></div>
-      <div class="detail-section" id="modalTagsWrap"><div class="detail-label">태그</div><div class="job-tags" id="modalTags"></div></div>
-    </div>
-    <div class="modal-footer" id="jobModalFooter">
-      <button class="btn-interest" onclick="doInterest()">🔖 관심등록</button>
-      <button class="btn-apply" onclick="doApply()">지원하기 →</button>
+      <div id="m-rec" style="display:none" class="recommend-box">🏫 <strong>학교장 추천전형</strong> — 추천 인원: <span id="m-reccnt"></span>명</div>
+      <div class="modal-desc" id="m-desc"></div>
+      <div id="m-files" style="display:none;margin-top:14px">
+        <div style="font-size:13px;font-weight:600;color:var(--text-sub);margin-bottom:8px">📎 붙임파일</div>
+        <div id="m-file-list"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn-interest" id="btn-interest" onclick="toggleInterest()">🤍 관심등록</button>
+        <button class="apply-btn" style="flex:2" onclick="alert('로그인 후 지원 가능합니다.')">지원하기</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 로그인 모달 -->
-<div class="modal-overlay" id="loginModal" onclick="closeLoginModal(event)">
-  <div class="login-modal">
-    <div class="login-header">
+<!-- 로그인 -->
+<div class="modal-overlay" id="loginModal" onclick="closeModal('loginModal',event)">
+  <div class="modal login-modal">
+    <div class="modal-header">
+      <div style="font-size:17px;font-weight:700">로그인</div>
       <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
-      <h2>로그인</h2>
-      <p>역할을 선택하고 로그인하세요</p>
-      <button class="admin-tiny" onclick="selectLoginRole('admin')">관리자</button>
     </div>
-    <div class="role-tabs">
-      <div class="role-tab active" id="tabStudent" onclick="selectLoginRole('student')"><span class="role-tab-icon">🎒</span>학생</div>
-      <div class="role-tab" id="tabHomeroom" onclick="selectLoginRole('homeroom')"><span class="role-tab-icon">👩‍🏫</span>담임교사</div>
-      <div class="role-tab" id="tabAdmin" onclick="selectLoginRole('admin')" style="display:none"><span class="role-tab-icon">⚙️</span>관리자</div>
-    </div>
-    <div class="login-form" id="formStudent">
-      <div class="form-group"><label class="form-label">학과 선택</label><select class="form-input" id="inputStudentDept"></select></div>
-      <div class="form-group"><label class="form-label">학번</label><input class="form-input" id="inputStudentId" type="text" placeholder="학번 4자리 입력 (예: 3101)" maxlength="4"><div class="form-hint">학년(1자리) + 반(1자리) + 번호(2자리) = 4자리</div></div>
-      <div class="form-group"><label class="form-label">이름</label><input class="form-input" id="inputStudentName" type="text" placeholder="본인 이름 입력"><div class="form-hint">생활기록부 데이터 매칭에 사용됩니다</div></div>
-      <div class="form-group"><label class="form-label">비밀번호</label><input class="form-input" id="inputStudentPw" type="password" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') doLogin()"><div class="form-hint">최초 비밀번호: 생년월일 6자리 (예: 070315)</div></div>
-      <button class="btn-do-login" onclick="doLogin()">📚 로그인</button>
-      <div class="login-error" id="errorStudent">입력 정보를 확인해주세요</div>
-    </div>
-    <div class="login-form" id="formHomeroom" style="display:none">
-      <div class="form-group"><label class="form-label">담당 학과</label><select class="form-input" id="inputHomeroomDept"></select></div>
-      <div class="form-group"><label class="form-label">학급코드</label><input class="form-input" id="inputClassCode" type="text" placeholder="예: 3-1"><div class="form-hint">학년-반 형식으로 입력 (예: 3-1, 2-2)</div></div>
-      <div class="form-group"><label class="form-label">비밀번호</label><input class="form-input" id="inputHomeroomPw" type="password" placeholder="비밀번호 입력 (최초: 학급코드)" onkeydown="if(event.key==='Enter') doLogin()"><div class="form-hint">최초 로그인 시 학급코드가 비밀번호입니다 (예: 3-1)</div></div>
-      <button class="btn-do-login" onclick="doLogin()">🏫 학급 접속</button>
-      <div class="login-error" id="errorHomeroom">학과, 학급코드, 비밀번호를 확인해주세요</div>
-    </div>
-    <div class="login-form" id="formAdmin" style="display:none">
-      <div class="form-group"><label class="form-label">관리자 비밀번호</label><input class="form-input" id="inputAdminPw" type="password" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') doLogin()"></div>
-      <button class="btn-do-login" onclick="doLogin()">🔐 로그인</button>
-      <div class="login-error" id="errorAdmin">비밀번호가 올바르지 않습니다</div>
-    </div>
-  </div>
-</div>
-
-<!-- 비밀번호 변경 모달 -->
-<div class="modal-overlay" id="changePwModal" onclick="if(event.target===this)closeModal('changePwModal')">
-  <div class="login-modal">
-    <div class="login-header">
-      <button class="modal-close" onclick="closeModal('changePwModal')">✕</button>
-      <h2>비밀번호 변경</h2>
-      <p id="changePwDesc">현재 비밀번호를 변경하세요</p>
-    </div>
-    <div class="login-form" style="display:block">
-      <div class="form-group"><label class="form-label">현재 비밀번호</label><input class="form-input" id="inputCurPw" type="password" placeholder="현재 비밀번호"></div>
-      <div class="form-group"><label class="form-label">새 비밀번호</label><input class="form-input" id="inputNewPw" type="password" placeholder="새 비밀번호 (4자 이상)"></div>
-      <div class="form-group"><label class="form-label">새 비밀번호 확인</label><input class="form-input" id="inputNewPw2" type="password" placeholder="새 비밀번호 재입력" onkeydown="if(event.key==='Enter') doChangePw()"></div>
-      <button class="btn-do-login" onclick="doChangePw()">🔑 비밀번호 변경</button>
-      <div class="login-error" id="errorChangePw"></div>
+    <div class="modal-body">
+      <div class="login-tab">
+        <button class="active" onclick="switchTab('st',this)">학생</button>
+        <button onclick="switchTab('tc',this)">담임교사</button>
+        <button onclick="switchTab('ad',this)">관리자</button>
+      </div>
+      <div id="tab-st">
+        <div class="form-group"><label>학과</label><select id="l-dept"><option value="">선택</option></select></div>
+        <div class="form-group"><label>학번</label><input id="l-id" placeholder="예: 3104" onkeydown="if(event.key==='Enter')loginStudent()"></div>
+        <div class="form-group"><label>비밀번호</label><input type="password" id="l-pw" placeholder="초기: 생년월일 6자리" onkeydown="if(event.key==='Enter')loginStudent()"></div>
+        <button class="btn-submit" onclick="alert('Google Sheets 연동 후 활성화')">로그인</button>
+      </div>
+      <div id="tab-tc" style="display:none">
+        <div class="form-group"><label>학과</label><select id="t-dept" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px"><option value="">학과 선택</option></select></div>
+        <div style="display:flex;gap:8px">
+          <div class="form-group" style="flex:1"><label>학년</label><select id="t-grade" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px"><option value="">학년</option><option>1</option><option>2</option><option>3</option></select></div>
+          <div class="form-group" style="flex:1"><label>반</label><select id="t-cls" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px"><option value="">반</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+        </div>
+        <div class="form-group"><label>이름</label><input id="t-name" placeholder="홍길동" onkeydown="if(event.key==='Enter')loginTeacher()"></div>
+        <div class="form-group"><label>비밀번호</label><input type="password" id="t-pw" onkeydown="if(event.key==='Enter')loginTeacher()"></div>
+        <button class="btn-submit" onclick="loginTeacher()">로그인</button>
+      </div>
+      <div id="tab-ad" style="display:none">
+        <div class="form-group"><label>관리자 비밀번호</label><input type="password" id="a-pw" onkeydown="if(event.key==='Enter')tryAdmin()"></div>
+        <button class="btn-submit" onclick="tryAdmin()">로그인</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 관리자 비번 리셋 모달 -->
-<div class="modal-overlay" id="resetPwModal" onclick="if(event.target===this)closeModal('resetPwModal')">
-  <div class="login-modal">
-    <div class="login-header">
-      <button class="modal-close" onclick="closeModal('resetPwModal')">✕</button>
-      <h2>비밀번호 초기화</h2>
-      <p>담임교사 비밀번호를 초기화합니다</p>
-    </div>
-    <div class="login-form" style="display:block">
-      <div class="form-group"><label class="form-label">학과 선택</label><select class="form-input" id="resetDept"></select></div>
-      <div class="form-group"><label class="form-label">학급코드</label><input class="form-input" id="resetClassCode" type="text" placeholder="예: 3-1"><div class="form-hint">해당 학급 비밀번호를 학급코드로 초기화합니다</div></div>
-      <button class="btn-do-login" onclick="doResetPw()">🔄 비밀번호 초기화</button>
-      <div class="login-error" id="errorResetPw"></div>
-    </div>
-  </div>
-</div>
+<footer><strong>삼일공업고등학교</strong> 특성화취창업지원부 | 경기도 수원시</footer>
 
-<!-- 토스트 -->
-<div id="toast"></div>
+<script>
+// ── 데이터 로드 (localStorage 우선, 없으면 샘플) ──
+const SAMPLE = {
+  stats:{grad:'312명',rate:'78%',active:'8개',closing:'3개',done:'24개'},
+  banners:[
+    {title:'2026 상반기 현장실습 기업 모집',url:'#',deadline:'2026.03.31',color:'#1A3A6B'},
+    {title:'취업역량 강화 특강 안내',url:'#',deadline:'2026.02.28',color:'#E8740A'},
+    {title:'NCS 직무능력 경진대회 참가 안내',url:'#',deadline:'2026.04.15',color:'#2E5FAD'},
+    {title:'2026 수원 취업박람회 사전 신청',url:'#',deadline:'2026.05.10',color:'#1D6A4A'},
+  ],
+  jobs:[
+    {co:'(주)삼성전자',job:'전자기기 생산',loc:'수원',cnt:3,dl:'2026.09.30',tags:['전자과'],rec:true,recCnt:2,desc:'전자기기 생산 및 품질 관리 업무',active:true},
+    {co:'LG이노텍',job:'PCB 생산',loc:'평택',cnt:5,dl:'2026.09.10',tags:['전자과'],rec:false,recCnt:0,desc:'PCB 생산 라인 운영 및 품질 검사',active:true},
+    {co:'(주)현대모비스',job:'자동차 부품 제조',loc:'화성',cnt:4,dl:'2026.09.20',tags:['기계과'],rec:true,recCnt:3,desc:'자동차 부품 제조 및 조립 업무',active:true},
+    {co:'(주)LS일렉트릭',job:'전기 시공',loc:'안양',cnt:6,dl:'2026.10.20',tags:['전기과'],rec:true,recCnt:4,desc:'전기 시공 및 유지보수 업무',active:true},
+    {co:'KT&G',job:'설비 유지보수',loc:'수원',cnt:2,dl:'2026.10.01',tags:['기계과','전기과'],rec:false,recCnt:0,desc:'생산 설비 유지보수 및 점검',active:true},
+    {co:'KCC건설',job:'현장 관리',loc:'서울',cnt:3,dl:'2026.10.25',tags:['건설과'],rec:false,recCnt:0,desc:'건설 현장 관리 및 안전 감독',active:true},
+  ],
+  depts:[
+    {dept:'전자과',g:68,e:54,a:8},{dept:'기계과',g:72,e:58,a:6},
+    {dept:'전기과',g:64,e:50,a:9},{dept:'화학공업과',g:45,e:35,a:5},
+    {dept:'건설과',g:38,e:28,a:4},{dept:'정보통신과',g:55,e:42,a:8},
+  ]
+};
 
-<!-- 푸터 -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-left">
-      <strong>삼일공업고등학교 특성화취창업지원부</strong><br>
-      경기도 수원시 · 취업문의: 학교 대표번호
-    </div>
-    <div class="footer-right">© 2025 삼일공업고등학교. All rights reserved.</div>
-  </div>
-</footer>
+function loadData(){
+  const DB = JSON.parse(localStorage.getItem('samilAdmin')||'{}');
+  return {
+    jobs:   (DB.jobs||[]).length   ? DB.jobs.filter(j=>j.active)   : SAMPLE.jobs,
+    banners:(DB.banners||[]).length ? DB.banners                    : SAMPLE.banners,
+    depts:  (DB.employs||[]).length ? buildDeptStats(DB)            : SAMPLE.depts,
+    stats:  buildStats(DB)
+  };
+}
 
-<!-- PDF.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<!-- 데이터 -->
-<script src="data.js"></script>
-<!-- 앱 로직 -->
-<script src="app.js"></script>
+function buildStats(DB){
+  const jobs=(DB.jobs||[]);
+  const today=new Date();
+  const active=jobs.filter(j=>j.active).length;
+  const closing=jobs.filter(j=>{
+    if(!j.active) return false;
+    const d=new Date(j.dl); const diff=Math.ceil((d-today)/86400000);
+    return diff>=0&&diff<=7;
+  }).length;
+  const done=jobs.filter(j=>!j.active).length;
+  // 취업현황 통계
+  const employs=DB.employs||[];
+  const latestYear=employs.length?Math.max(...employs.map(e=>e.year)):null;
+  const yearData=latestYear?employs.filter(e=>e.year==latestYear):[];
+  const totalGrad=yearData.reduce((a,e)=>a+(e.grad||0),0)||312;
+  const totalEmp =yearData.reduce((a,e)=>a+(e.emp||0),0)||244;
+  return {
+    grad:totalGrad+'명',
+    rate:totalGrad?Math.round(totalEmp/totalGrad*100)+'%':'78%',
+    active:active||'8개',
+    closing:closing||'3개',
+    done:done||'24개'
+  };
+}
 
+function buildDeptStats(DB){
+  const employs=DB.employs||[];
+  if(!employs.length) return SAMPLE.depts;
+  const latestYear=Math.max(...employs.map(e=>e.year));
+  return employs.filter(e=>e.year==latestYear).map(e=>({
+    dept:e.dept, g:e.grad||0, e:e.emp||0, a:e.adv||0
+  }));
+}
+
+let showN = 4;
+let DATA = {jobs:[],banners:[],depts:[],stats:{}};
+
+window.addEventListener('DOMContentLoaded', async ()=>{
+  // ── Sheets에서 데이터 로드 ──
+  try {
+    const [jobsRes, bannersRes, statsRes, deptsRes] = await Promise.all([
+      SAMIL_API.getJobs(true),
+      SAMIL_API.getBanners(),
+      SAMIL_API.getStats(),
+      SAMIL_API.getDepts(),
+    ]);
+    DATA.jobs    = jobsRes.success    ? jobsRes.data    : SAMPLE.jobs;
+    DATA.banners = bannersRes.success ? bannersRes.data : SAMPLE.banners;
+
+    // 통계
+    const st = statsRes.success && statsRes.latest ? statsRes.latest : {};
+    const today2 = new Date();
+    const closing = DATA.jobs.filter(j=>{
+      const diff=Math.ceil((new Date(j.dl)-today2)/86400000);
+      return diff>=0&&diff<=7;
+    }).length;
+    DATA.stats = {
+      grad    : st.grad     ? st.grad+'명'    : SAMPLE.stats.grad,
+      rate    : st.rate     ? st.rate+'%'     : SAMPLE.stats.rate,
+      active  : DATA.jobs.length+'개',
+      closing : closing+'개',
+      done    : SAMPLE.stats.done,
+    };
+
+    // 학과 드롭다운
+    const sel=document.getElementById('l-dept');
+    const depts = deptsRes.success && deptsRes.data.length ? deptsRes.data : SAMPLE.depts;
+    depts.forEach(d=>{
+      const o=document.createElement('option');
+      o.value=d.name||d.dept; o.textContent=d.name||d.dept; sel.appendChild(o);
+      // 담임 학과 드롭다운도 채우기
+      const o2=document.createElement('option');
+      o2.value=d.name||d.dept; o2.textContent=d.name||d.dept;
+      document.getElementById('t-dept').appendChild(o2);
+    });
+    DATA.depts = depts.map(d=>({dept:d.name||d.dept,g:0,e:0,a:0}));
+  } catch(e) {
+    console.warn('Sheets 연결 실패, 샘플 데이터 사용:', e);
+    DATA = { jobs:SAMPLE.jobs, banners:SAMPLE.banners, depts:SAMPLE.depts, stats:SAMPLE.stats };
+    const sel=document.getElementById('l-dept');
+    SAMPLE.depts.forEach(d=>{const o=document.createElement('option');o.value=d.dept;o.textContent=d.dept;sel.appendChild(o);});
+  }
+
+  // 통계 표시
+  document.getElementById('s-grad').textContent = DATA.stats.grad;
+  document.getElementById('s-rate').textContent = DATA.stats.rate;
+  document.getElementById('s-active').textContent = DATA.stats.active;
+  document.getElementById('s-close').textContent = DATA.stats.closing;
+  document.getElementById('s-done').textContent = DATA.stats.done||'—';
+
+  // 배너
+  document.getElementById('banners').innerHTML = DATA.banners.map(b=>
+    `<a class="banner-item" href="${b.url||'#'}" style="background:${b.color||'#1A3A6B'}">
+      <div><div class="banner-title">${b.title}</div><div class="banner-date">마감 ${b.deadline||b.dl||''}</div></div>
+      <div class="banner-arrow">→</div></a>`).join('');
+
+  renderJobs();
+
+  // 취업현황 테이블
+  let tg=0,te=0,ta=0;
+  document.getElementById('deptTb').innerHTML = DATA.depts.map(d=>{
+    tg+=d.g;te+=d.e;ta+=d.a;
+    const rate=d.g?Math.round(d.e/d.g*100):0;
+    const adv=d.g?Math.round(d.a/d.g*100):0;
+    return `<tr><td style="text-align:left;font-weight:500">${d.dept}</td><td>${d.g}</td><td>${d.e}</td><td>${d.a}</td>
+      <td class="dept-rate">${rate}%</td><td>${adv}%</td></tr>`;
+  }).join('')+(tg?`<tr class="dept-total"><td style="text-align:left">전체</td><td>${tg}</td><td>${te}</td><td>${ta}</td>
+    <td class="dept-rate">${Math.round(te/tg*100)}%</td><td>${Math.round(ta/tg*100)}%</td></tr>`:'');
+});
+
+function renderJobs(){
+  const today=new Date();
+  document.getElementById('jobList').innerHTML = DATA.jobs.slice(0,showN).map((j,i)=>{
+    const dlStr=(j.dl||'').replace(/\./g,'-');
+    const dl=new Date(dlStr);
+    const diff=Math.ceil((dl-today)/86400000);
+    const urg=diff<=7&&diff>=0;
+    return `<div class="job-card" onclick="openJob(${i})">
+      <div class="job-company">${j.co}${j.rec?'<span class="job-recommend">학교장추천</span>':''}</div>
+      <div class="job-title">${j.title}</div>
+      <div class="job-meta">${j.tags.map(t=>`<span class="job-tag">${t}</span>`).join('')}
+        <span class="job-tag">📍${j.loc}</span><span class="job-tag">👤${j.cnt}명</span></div>
+      <div class="job-footer">
+        <span class="job-deadline${urg?' urgent':''}">마감 ${j.dl}${urg?' ⚠':''}</span>
+        <span class="job-detail">상세보기 →</span>
+      </div></div>`;
+  }).join('');
+  document.getElementById('btnMore').style.display = showN>=DATA.jobs.length?'none':'block';
+}
+
+function loadMore(){showN+=4;renderJobs();}
+
+function openJob(i){
+  const j=DATA.jobs[i];
+  document.getElementById('m-co').textContent=j.co;
+  document.getElementById('m-title').textContent=j.title||j.job;
+  document.getElementById('m-job').textContent=j.job||j.title;
+  document.getElementById('m-loc').textContent=j.loc;
+  document.getElementById('m-cnt').textContent=j.cnt+'명';
+  document.getElementById('m-dl').textContent=j.dl;
+  document.getElementById('m-desc').textContent=j.desc;
+  document.getElementById('m-rec').style.display=j.rec?'block':'none';
+  if(j.rec) document.getElementById('m-reccnt').textContent=j.recCnt;
+  // 붙임파일
+  const fWrap=document.getElementById('m-files');
+  const fList=document.getElementById('m-file-list');
+  if(j.files&&j.files.length){
+    fList.innerHTML=j.files.map(f=>`<a class="file-item" href="${f.url}" target="_blank">📄 ${f.name}</a>`).join('');
+    fWrap.style.display='block';
+  } else fWrap.style.display='none';
+  // 관심등록 상태
+  const interests=JSON.parse(localStorage.getItem('interests')||'[]');
+  const btn=document.getElementById('btn-interest');
+  btn.className='btn-interest'+(interests.includes(i)?' on':'');
+  btn.textContent=interests.includes(i)?'❤️ 관심등록됨':'🤍 관심등록';
+  btn.dataset.idx=i;
+  document.getElementById('jobModal').classList.add('open');
+}
+
+function toggleInterest(){
+  const btn=document.getElementById('btn-interest');
+  const i=parseInt(btn.dataset.idx);
+  let arr=JSON.parse(localStorage.getItem('interests')||'[]');
+  if(arr.includes(i)){arr=arr.filter(x=>x!==i);btn.className='btn-interest';btn.textContent='🤍 관심등록';}
+  else{arr.push(i);btn.className='btn-interest on';btn.textContent='❤️ 관심등록됨';}
+  localStorage.setItem('interests',JSON.stringify(arr));
+}
+
+function closeModal(id,e){if(!e||e.target.id===id) document.getElementById(id).classList.remove('open');}
+function openLogin(){document.getElementById('loginModal').classList.add('open');}
+function switchTab(tab,btn){
+  ['st','tc','ad'].forEach(t=>document.getElementById('tab-'+t).style.display='none');
+  document.getElementById('tab-'+tab).style.display='block';
+  document.querySelectorAll('.login-tab button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+async function loginStudent(){
+  const dept=document.getElementById('l-dept').value;
+  const id=document.getElementById('l-id').value.trim();
+  const pw=document.getElementById('l-pw').value;
+  if(!dept){alert('학과를 선택하세요');return;}
+  if(!id||!pw){alert('학번과 비밀번호를 입력하세요');return;}
+  const btn=document.querySelector('#tab-st .btn-submit');
+  if(btn){btn.textContent='확인중…';btn.disabled=true;}
+  const res=await SAMIL_API.loginStudent(dept,id,pw);
+  if(btn){btn.textContent='로그인';btn.disabled=false;}
+  if(res.success){
+    sessionStorage.setItem('samilStudentAuth',res.student.id);
+    sessionStorage.setItem('samilStudentME',JSON.stringify(res.student));
+    closeModal('loginModal');
+    window.location.href='student.html';
+  } else { document.getElementById('l-pw').value=''; alert(res.error||'학과/학번/비밀번호가 일치하지 않습니다.'); }
+}
+async function loginTeacher(){
+  const dept=document.getElementById('t-dept').value;
+  const grade=document.getElementById('t-grade').value;
+  const cls=document.getElementById('t-cls').value;
+  const name=document.getElementById('t-name').value.trim();
+  const pw=document.getElementById('t-pw').value;
+  if(!dept||!grade||!cls||!name||!pw){alert('모든 항목을 입력하세요');return;}
+  const btn=document.querySelector('#tab-tc .btn-submit');
+  if(btn){btn.textContent='확인중…';btn.disabled=true;}
+  const res=await SAMIL_API.loginTeacher(dept,grade,cls,name,pw);
+  if(btn){btn.textContent='로그인';btn.disabled=false;}
+  if(res.success){
+    sessionStorage.setItem('samilTeacherAuth',res.teacher.id);
+    sessionStorage.setItem('samilTeacherME',JSON.stringify(res.teacher));
+    closeModal('loginModal');
+    window.location.href='teacher.html';
+  } else { document.getElementById('t-pw').value=''; alert(res.error||'담임 계정 정보가 맞지 않습니다.'); }
+}
+function tryAdmin(){
+  const pw=document.getElementById('a-pw').value;
+  const masterPw=localStorage.getItem('samilMasterPw')||'samil_master';
+  const commonPw=localStorage.getItem('samilCommonPw')||'samil2024';
+  if(pw===masterPw||pw===commonPw){
+    sessionStorage.setItem('samilAdminAuth','1');
+    closeModal('loginModal');
+    window.location.href='admin.html';
+  } else {
+    document.getElementById('a-pw').value='';
+    alert('비밀번호가 틀렸습니다.');
+  }
+}
+function toggleMenu(){document.getElementById('navMenu').classList.toggle('open');}
+function closeMenu(){document.getElementById('navMenu').classList.remove('open');}
+<script src="samil-api.js"></script>
 </body>
 </html>
