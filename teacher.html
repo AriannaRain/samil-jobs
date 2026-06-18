@@ -285,18 +285,37 @@ tr:hover td{background:#fafbfd}
   <div class="login-box">
     <div class="login-logo">
       <div class="mark">👨‍🏫</div>
-      <h2>담임교사 로그인</h2>
+      <h2>교사 로그인</h2>
       <p>삼일공업고등학교 취업정보 포털</p>
     </div>
-    <div class="form-group"><label>학과</label><select id="l-dept" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit"><option value="">학과 선택</option></select></div>
-    <div style="display:flex;gap:8px">
-      <div class="form-group" style="flex:1"><label>학년</label><select id="l-grade" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px"><option value="">학년</option><option>1</option><option>2</option><option>3</option></select></div>
-      <div class="form-group" style="flex:1"><label>반</label><select id="l-cls" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px"><option value="">반</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+    <!-- 담임 / 비담임 탭 -->
+    <div style="display:flex;gap:4px;background:#f4f6fa;padding:4px;border-radius:10px;margin-bottom:18px">
+      <button id="loginTabHome" onclick="switchLoginTab('home')"
+        style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;background:#fff;color:#1A3A6B;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.1);transition:.2s">
+        🏠 담임교사
+      </button>
+      <button id="loginTabNonHome" onclick="switchLoginTab('nonHome')"
+        style="flex:1;padding:8px;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;background:none;color:#5A6A7E;font-weight:500;transition:.2s">
+        👤 비담임교사
+      </button>
     </div>
-    <div class="form-group"><label>이름</label><input id="l-name" placeholder="홍길동" onkeydown="if(event.key==='Enter')tryLogin()"></div>
-    <div class="form-group"><label>비밀번호</label><input type="password" id="l-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+    <!-- 담임교사 입력 필드 -->
+    <div id="loginFieldsHome">
+      <div class="form-group"><label>학과</label><select id="l-dept" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit"><option value="">학과 선택</option></select></div>
+      <div style="display:flex;gap:8px">
+        <div class="form-group" style="flex:1"><label>학년</label><select id="l-grade" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px"><option value="">학년</option><option>1</option><option>2</option><option>3</option></select></div>
+        <div class="form-group" style="flex:1"><label>반</label><select id="l-cls" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px"><option value="">반</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+      </div>
+      <div class="form-group"><label>이름</label><input id="l-name" placeholder="홍길동" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+      <div class="form-group"><label>비밀번호</label><input type="password" id="l-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+    </div>
+    <!-- 비담임교사 입력 필드 -->
+    <div id="loginFieldsNonHome" style="display:none">
+      <div class="form-group"><label>이름</label><input id="nh-name" placeholder="홍길동" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+      <div class="form-group"><label>비밀번호</label><input type="password" id="nh-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+    </div>
     <button class="btn-login" onclick="tryLogin()">로그인</button>
-    <div class="login-hint">💡 아이디/비밀번호는 관리자에게 문의하세요<br>아이디 형식: 학과코드_학년반 (예: 전자_104)</div>
+    <div class="login-hint">💡 계정 정보는 관리자에게 문의하세요</div>
   </div>
 </div>
 
@@ -361,6 +380,24 @@ tr:hover td{background:#fafbfd}
     <!-- 생기부 업로드 -->
     <div class="tab-panel" id="tab-upload">
       <div class="page-header"><h1>생활기록부 Excel 업로드</h1><p>추출기로 생성한 Excel 파일을 업로드하면 학생 계정이 자동 생성됩니다.</p></div>
+      <!-- 비담임교사 전용: 업로드 대상 학반 선택 -->
+      <div class="card" id="nhUploadClassCard" style="display:none">
+        <div class="card-title">📋 업로드 대상 학반 선택 <span style="font-size:12px;color:var(--text-sub);font-weight:400">(비담임교사 — 업로드할 반을 먼저 선택하세요)</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="form-group" style="margin:0"><label>학과</label>
+            <select id="nh-upload-dept" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none"></select>
+          </div>
+          <div class="form-group" style="margin:0"><label>학년</label>
+            <select id="nh-upload-grade" style="padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none">
+              <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0"><label>반</label>
+            <input id="nh-upload-cls" type="number" min="1" max="9" value="1" placeholder="1"
+              style="width:70px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none">
+          </div>
+        </div>
+      </div>
       <div class="card">
         <div class="card-title">파일 업로드</div>
         <div class="alert alert-info">✅ 업로드 가능 파일: 생활기록부 추출기(samil_record_extractor.exe)로 생성한 <strong>.xlsx</strong> 파일</div>
@@ -415,6 +452,7 @@ tr:hover td{background:#fafbfd}
                 <th>자격증</th>
                 <th>전과목<br>평균등급</th><th>전문교과<br>평균등급</th>
                 <th>동아리</th><th>임원</th>
+                <th>취업</th><th>진학</th>
                 <th>계정</th>
               </tr>
             </thead>
@@ -485,6 +523,7 @@ tr:hover td{background:#fafbfd}
         <button class="stu-modal-tab" onclick="smTab('certs',this)">🏅 자격증</button>
         <button class="stu-modal-tab" onclick="smTab('clubs',this)">🎯 동아리</button>
         <button class="stu-modal-tab" onclick="smTab('leaders',this)">🏆 임원</button>
+        <button class="stu-modal-tab" onclick="smTab('employ',this)">💼 취업/진학</button>
       </div>
       <!-- 출결 -->
       <div class="stu-modal-section active" id="sm-attend"></div>
@@ -501,11 +540,29 @@ tr:hover td{background:#fafbfd}
           📌 출결·성적·동아리·임원 데이터는 생활기록부 PDF 업로드 후 자동 연계됩니다
         </div>
       </div>
+      <!-- 취업/진학 -->
+      <div class="stu-modal-section" id="sm-employ"></div>
     </div>
     <!-- 모달 하단 버튼 -->
     <div style="padding:0 20px 18px;display:flex;justify-content:flex-end;gap:8px">
       <button class="btn btn-ghost btn-sm" id="sm-pw-btn" onclick="">🔑 PW 초기화</button>
       <button class="btn btn-ghost btn-sm" onclick="closeStuModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 취업/진학 입력 모달 -->
+<div class="modal-overlay" id="teacherEmployModal">
+  <div class="modal">
+    <h3 id="tem-title">취업처 입력</h3>
+    <div class="form-group">
+      <label id="tem-label">입사처</label>
+      <input id="tem-place" placeholder="예: 삼성전자" onkeydown="if(event.key==='Enter')saveTeacherEmploy()">
+    </div>
+    <div id="tem-alert" style="margin-top:8px"></div>
+    <div class="modal-btns">
+      <button class="btn btn-accent" style="flex:1" onclick="saveTeacherEmploy()">저장</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeTeacherEmployModal()">취소</button>
     </div>
   </div>
 </div>
@@ -535,23 +592,52 @@ let pendingStudents = []; // 업로드 미리보기 대기
 
 function saveDB(){ localStorage.setItem('samilAdmin', JSON.stringify(DB)); }
 
+// ── 로그인 탭 전환 ──
+let _loginTab = 'home';
+function switchLoginTab(tab) {
+  _loginTab = tab;
+  const isHome = tab === 'home';
+  document.getElementById('loginFieldsHome').style.display    = isHome ? '' : 'none';
+  document.getElementById('loginFieldsNonHome').style.display = isHome ? 'none' : '';
+  const btnHome    = document.getElementById('loginTabHome');
+  const btnNonHome = document.getElementById('loginTabNonHome');
+  if (btnHome) {
+    btnHome.style.background   = isHome ? '#fff' : 'none';
+    btnHome.style.color        = isHome ? '#1A3A6B' : '#5A6A7E';
+    btnHome.style.fontWeight   = isHome ? '700' : '500';
+    btnHome.style.boxShadow    = isHome ? '0 1px 4px rgba(0,0,0,.1)' : 'none';
+  }
+  if (btnNonHome) {
+    btnNonHome.style.background = isHome ? 'none' : '#fff';
+    btnNonHome.style.color      = isHome ? '#5A6A7E' : '#1A3A6B';
+    btnNonHome.style.fontWeight = isHome ? '500' : '700';
+    btnNonHome.style.boxShadow  = isHome ? 'none' : '0 1px 4px rgba(0,0,0,.1)';
+  }
+}
+
 // ── 로그인 ──
 async function tryLogin(){
-  const dept  = document.getElementById('l-dept').value;
-  const grade = document.getElementById('l-grade').value;
-  const cls   = document.getElementById('l-cls').value;
-  const name  = document.getElementById('l-name').value.trim();
-  const pw    = document.getElementById('l-pw').value;
-  if(!dept||!grade||!cls||!name||!pw){ alert('모든 항목을 입력하세요'); return; }
-
-  const btn = document.querySelector('#loginScreen .btn-submit, #loginScreen button');
+  const btn = document.querySelector('#loginScreen .btn-login');
   if(btn){ btn.textContent='확인중…'; btn.disabled=true; }
 
-  const res = await SAMIL_API.loginTeacher(dept, grade, cls, name, pw);
+  let res;
+  if (_loginTab === 'nonHome') {
+    const name = document.getElementById('nh-name').value.trim();
+    const pw   = document.getElementById('nh-pw').value;
+    if (!name || !pw) { alert('이름과 비밀번호를 입력하세요'); if(btn){btn.textContent='로그인';btn.disabled=false;} return; }
+    res = await SAMIL_API.loginNonHomeTeacher(name, pw);
+  } else {
+    const dept  = document.getElementById('l-dept').value;
+    const grade = document.getElementById('l-grade').value;
+    const cls   = document.getElementById('l-cls').value;
+    const name  = document.getElementById('l-name').value.trim();
+    const pw    = document.getElementById('l-pw').value;
+    if(!dept||!grade||!cls||!name||!pw){ alert('모든 항목을 입력하세요'); if(btn){btn.textContent='로그인';btn.disabled=false;} return; }
+    res = await SAMIL_API.loginTeacher(dept, grade, cls, name, pw);
+  }
 
   if(btn){ btn.textContent='로그인'; btn.disabled=false; }
-
-  if(!res.success){ alert(res.error||'담임 계정 정보가 맞지 않습니다.'); return; }
+  if(!res.success){ alert(res.error||'계정 정보가 맞지 않습니다.'); return; }
 
   ME = res.teacher;
   sessionStorage.setItem('samilTeacherAuth', ME.id);
@@ -559,8 +645,12 @@ async function tryLogin(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('topNav').style.display='flex';
   document.getElementById('appLayout').style.display='flex';
-  document.getElementById('navTeacherInfo').innerHTML =
-    `<strong>${ME.name}</strong> 선생님 | ${ME.dept} ${ME.grade}학년 ${ME.cls}반`;
+  if (ME.isNonHome) {
+    document.getElementById('navTeacherInfo').innerHTML = `<strong>${ME.name}</strong> 선생님 | 비담임교사`;
+  } else {
+    document.getElementById('navTeacherInfo').innerHTML =
+      `<strong>${ME.name}</strong> 선생님 | ${ME.dept} ${ME.grade}학년 ${ME.cls}반`;
+  }
   await loadTeacherData();
   init();
 }
@@ -568,22 +658,26 @@ async function tryLogin(){
 function logout(){
   ME=null;
   sessionStorage.removeItem('samilTeacherAuth');
-  document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('topNav').style.display='none';
-  document.getElementById('appLayout').style.display='none';
-  document.getElementById('l-pw').value='';
+  sessionStorage.removeItem('samilTeacherME');
+  location.href='index.html';
 }
 
 // ── 초기화 ──
 function init(){
   const myStudents = getMyStudents();
   // 대시보드
-  document.getElementById('dashTitle').textContent = `${ME.dept} ${ME.grade}학년 ${ME.cls}반 현황`;
-  document.getElementById('dashSub').textContent   = `${ME.year}학년도`;
+  if (ME.isNonHome) {
+    document.getElementById('dashTitle').textContent = '전체 학생 현황';
+    document.getElementById('dashSub').textContent   = `${ME.year}학년도 | 비담임교사`;
+    document.getElementById('studentSubTitle').textContent = `전체 | 총 ${myStudents.length}명`;
+  } else {
+    document.getElementById('dashTitle').textContent = `${ME.dept} ${ME.grade}학년 ${ME.cls}반 현황`;
+    document.getElementById('dashSub').textContent   = `${ME.year}학년도`;
+    document.getElementById('studentSubTitle').textContent = `${ME.dept} ${ME.grade}학년 ${ME.cls}반 | 총 ${myStudents.length}명`;
+  }
   document.getElementById('d-total').textContent   = myStudents.length;
   document.getElementById('d-uploaded').textContent= myStudents.filter(s=>s.uploaded).length;
   document.getElementById('d-jobs').textContent    = (DB.jobs||[]).filter(j=>j.active).length;
-  document.getElementById('studentSubTitle').textContent = `${ME.dept} ${ME.grade}학년 ${ME.cls}반 | 총 ${myStudents.length}명`;
   _selId=null;
 
   // 최근 학생
@@ -593,11 +687,23 @@ function init(){
     <td><span class="badge ${s.uploaded?'badge-green':'badge-gray'}">${s.uploaded?'등록됨':'미등록'}</span></td></tr>
   `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-sub)">업로드된 학생이 없습니다</td></tr>';
 
+  // 비담임교사: 학반 선택 카드 표시 + 학과 드롭다운 채우기
+  const nhCard = document.getElementById('nhUploadClassCard');
+  if (nhCard) nhCard.style.display = ME.isNonHome ? '' : 'none';
+  if (ME.isNonHome) {
+    const nhDeptSel = document.getElementById('nh-upload-dept');
+    if (nhDeptSel) {
+      const depts = (DB.depts || []).map(d => d.name || d);
+      nhDeptSel.innerHTML = depts.map(d => `<option value="${d}">${d}</option>`).join('') || '<option value="">학과없음</option>';
+    }
+  }
+
   renderStudentList();
   renderJobs();
 }
 
 function getMyStudents(){
+  if (ME && ME.isNonHome) return DB.students || [];
   return (DB.students||[]).filter(s=>
     s.dept===ME.dept && s.grade===String(ME.grade) && s.cls===String(ME.cls)
   );
@@ -640,6 +746,10 @@ function handleFile(file){
       setProgress(85,'성적요약 파싱 중...');
       const ws6=wb.Sheets['성적요약'];
       const summaryRows=ws6?XLSX.utils.sheet_to_json(ws6,{header:1}).slice(1):[];
+      // 출신중학교 시트 파싱
+      const ws7=wb.Sheets['출신중학교'];
+      const middleRows=ws7?XLSX.utils.sheet_to_json(ws7,{header:1}).slice(1):[];
+      const mMap={};middleRows.forEach(r=>{mMap[String(r[1]||'')]={middle:String(r[3]||''),middleYear:String(r[4]||'')};});
       function gid(rows){const m={};rows.forEach(r=>{const id=String(r[1]||'');if(!m[id])m[id]=[];m[id].push(r);});return m;}
       const aMap=gid(attendRows),cMap=gid(certRows),clMap=gid(clubRows),lMap=gid(leaderRows);
       const sMap={};summaryRows.forEach(r=>{sMap[String(r[1]||'')]=r;});
@@ -660,7 +770,8 @@ function handleFile(file){
         const sr=sMap[id];
         const summary=sr?{allUnit:sr[3]||0,allGrade:sr[4]||0,genUnit:sr[5]||0,genGrade:sr[6]||0,proUnit:sr[7]||0,proGrade:sr[8]||0}:null;
         return{dept,id,name,gender,birth,teacher,pw:birth,grade:String(ME.grade),cls:String(ME.cls),
-               uploaded:true,certCount:certs.length,certs,attend,clubs,leaders,summary};
+               uploaded:true,certCount:certs.length,certs,attend,clubs,leaders,summary,
+               middle:(mMap[id]&&mMap[id].middle)||'',middleYear:(mMap[id]&&mMap[id].middleYear)||''};
       }).filter(s=>s.name&&s.id);
       setProgress(100,'완료!');
       const tc=pendingStudents.reduce((a,s)=>a+s.certs.length,0);
@@ -700,7 +811,27 @@ function confirmUpload(){
     else{ DB.students.push(s); added++; }
   });
   saveDB();
-  showUploadAlert('success',`✅ 저장 완료! 신규 ${added}명 추가, ${updated}명 업데이트`);
+
+  // ── Sheets 저장 (배치 1회) ──
+  showUploadAlert('success',`⏳ Sheets에 저장 중… (${pendingStudents.length}명)`);
+  // 비담임교사는 선택한 학반의 담임ID를 teacherId로 사용
+  let teacherId = ME ? ME.id : '';
+  if (ME && ME.isNonHome) {
+    const nhDept  = document.getElementById('nh-upload-dept')?.value || '';
+    const nhGrade = document.getElementById('nh-upload-grade')?.value || '';
+    const nhCls   = document.getElementById('nh-upload-cls')?.value || '';
+    teacherId = `${ME.year}${nhDept}${nhGrade}${nhCls}`;
+  }
+  SAMIL_API.saveRecords(pendingStudents, teacherId).then(res => {
+    if(res && res.success){
+      showUploadAlert('success', `✅ 저장 완료! 신규 ${res.added}명 추가, ${res.updated}명 업데이트`);
+    } else {
+      showUploadAlert('error', `⚠️ Sheets 저장 실패: ${(res&&res.error)||'오류'}`);
+    }
+  }).catch(e => {
+    showUploadAlert('error', `⚠️ Sheets 저장 실패: ${e.message}`);
+  });
+
   document.getElementById('previewCard').style.display='none';
   pendingStudents=[];
   document.getElementById('fileInput').value='';
@@ -749,6 +880,12 @@ function renderStudentList(){
           <td>${(s.leaders||[]).length
             ?`<span class="badge badge-blue" style="font-size:11px">${roles}</span>`
             :'—'}</td>
+          <td>${s.employed
+            ?`<span class="badge badge-green" style="cursor:pointer;white-space:nowrap" title="${s.company||''}" onclick="openTeacherEmployModal('${s.id}','employ')">✅ ${s.company||'취업'}</span>`
+            :`<button class="btn btn-sm btn-ghost" onclick="openTeacherEmployModal('${s.id}','employ')">—</button>`}</td>
+          <td>${s.advanced
+            ?`<span class="badge badge-blue" style="cursor:pointer;white-space:nowrap" title="${s.school||''}" onclick="openTeacherEmployModal('${s.id}','advance')">✅ ${s.school||'진학'}</span>`
+            :`<button class="btn btn-sm btn-ghost" onclick="openTeacherEmployModal('${s.id}','advance')">—</button>`}</td>
           <td><span class="badge ${s.uploaded?'badge-green':'badge-gray'}">${s.uploaded?'등록':'미등록'}</span></td>
         </tr>`;
       }).join('')
@@ -782,7 +919,7 @@ function selectStudent(id){
   document.querySelectorAll('.stu-row').forEach(r=>{
     r.classList.toggle('active', r.dataset.id===id);
   });
-  const s=getMyStudents().find(x=>x.id===id);
+  const s=getMyStudents().find(x=>String(x.id)===String(id));
   if(!s) return;
 
   // 모달 헤더
@@ -790,6 +927,9 @@ function selectStudent(id){
   document.getElementById('sm-name').textContent   = s.name;
   document.getElementById('sm-meta').textContent   =
     `${s.dept} ${s.grade}학년 ${s.cls}반 | 학번: ${s.id} | 생년월일: ${s.birth||'—'}`;
+  if (s.middle) {
+    document.getElementById('sm-meta').textContent += ` | 출신중학교: ${s.middle}`;
+  }
   document.getElementById('sm-pw-btn').onclick = ()=>resetPw(s.id);
 
   // ── 출결 ──
@@ -875,12 +1015,89 @@ function selectStudent(id){
 
   // 첫 탭(출결) 활성화 후 모달 오픈
   smTab('attend', document.querySelector('.stu-modal-tab'));
+
+  // ── 취업/진학 ──
+  document.getElementById('sm-employ').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#F4F6FA;border-radius:10px">
+        <div style="flex:1">
+          <strong>취업</strong>
+          <span style="color:var(--text-sub);font-size:12px;margin-left:8px">${s.company||'미입력'}</span>
+        </div>
+        ${s.employed
+          ? `<button class="btn btn-sm btn-ghost" style="color:var(--red)" onclick="cancelTeacherEmploy('${s.id}','employ')">취소</button>`
+          : `<button class="btn btn-sm btn-accent" onclick="openTeacherEmployModal('${s.id}','employ')">입력</button>`}
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#F4F6FA;border-radius:10px">
+        <div style="flex:1">
+          <strong>진학</strong>
+          <span style="color:var(--text-sub);font-size:12px;margin-left:8px">${s.school||'미입력'}</span>
+        </div>
+        ${s.advanced
+          ? `<button class="btn btn-sm btn-ghost" style="color:var(--red)" onclick="cancelTeacherEmploy('${s.id}','advance')">취소</button>`
+          : `<button class="btn btn-sm btn-accent" onclick="openTeacherEmployModal('${s.id}','advance')">입력</button>`}
+      </div>
+    </div>`;
+
   document.getElementById('stuModal').classList.add('open');
 }
 function resetPw(id){
   if(!confirm('초기 비밀번호(생년월일)로 초기화합니까?')) return;
-  const s=DB.students.find(x=>x.id===id);
+  const s=DB.students.find(x=>String(x.id)===String(id));
   if(s){ s.pw=s.birth; saveDB(); alert('초기화 완료'); }
+}
+
+// ── 취업/진학 (담임) ──
+let _teacherEmployTarget = { id: null, type: null };
+
+function openTeacherEmployModal(studentId, type) {
+  _teacherEmployTarget = { id: studentId, type };
+  const isEmp = type === 'employ';
+  document.getElementById('tem-title').textContent = isEmp ? '취업처 입력' : '진학처 입력';
+  document.getElementById('tem-label').textContent = isEmp ? '입사처' : '입학처';
+  document.getElementById('tem-place').placeholder = isEmp ? '예: 삼성전자' : '예: 수원대학교';
+  document.getElementById('tem-place').value = '';
+  document.getElementById('tem-alert').innerHTML = '';
+  document.getElementById('teacherEmployModal').classList.add('open');
+  setTimeout(() => document.getElementById('tem-place').focus(), 100);
+}
+
+function closeTeacherEmployModal() {
+  document.getElementById('teacherEmployModal').classList.remove('open');
+}
+
+async function saveTeacherEmploy() {
+  const { id, type } = _teacherEmployTarget;
+  const place = document.getElementById('tem-place').value.trim();
+  if (!place) { document.getElementById('tem-alert').innerHTML = '<div class="alert alert-error">입력하세요</div>'; return; }
+  const data = type === 'employ'
+    ? { studentId: id, employed: '예', company: place }
+    : { studentId: id, advanced: '예', school:   place };
+  try {
+    const res = await SAMIL_API.updateStudentEmploy(data);
+    if (!res.success) throw new Error(res.error || '저장 실패');
+    // 로컬 DB 업데이트
+    const s = (DB.students||[]).find(x => String(x.id) === String(id));
+    if (s) { if (type==='employ') { s.employed=true; s.company=place; } else { s.advanced=true; s.school=place; } }
+    closeTeacherEmployModal();
+    closeStuModal();
+    renderStudentList();
+  } catch(e) { document.getElementById('tem-alert').innerHTML = `<div class="alert alert-error">${e.message}</div>`; }
+}
+
+async function cancelTeacherEmploy(studentId, type) {
+  if (!confirm('상태를 취소하시겠습니까?')) return;
+  const data = type === 'employ'
+    ? { studentId, employed: '아니오', company: '' }
+    : { studentId, advanced: '아니오', school:  '' };
+  try {
+    const res = await SAMIL_API.updateStudentEmploy(data);
+    if (!res.success) throw new Error(res.error || '실패');
+    const s = (DB.students||[]).find(x => String(x.id) === String(studentId));
+    if (s) { if (type==='employ') { s.employed=false; s.company=''; } else { s.advanced=false; s.school=''; } }
+    closeStuModal();
+    renderStudentList();
+  } catch(e) { alert('실패: ' + e.message); }
 }
 
 function exportCSV(){
@@ -924,16 +1141,25 @@ function renderJobs(){
 // ── 비밀번호 변경 ──
 function openPwModal(){ document.getElementById('pwModal').classList.add('open'); }
 function closePwModal(){ document.getElementById('pwModal').classList.remove('open'); ['pw-cur','pw-new','pw-cf'].forEach(x=>document.getElementById(x).value=''); }
-function changePw(){
+async function changePw(){
   const cur=document.getElementById('pw-cur').value;
   const nw=document.getElementById('pw-new').value;
   const cf=document.getElementById('pw-cf').value;
   const al=document.getElementById('pw-alert');
-  if(cur!==ME.pw){ al.innerHTML='<div class="alert alert-error">현재 비밀번호가 틀렸습니다.</div>'; return; }
   if(nw.length<4){ al.innerHTML='<div class="alert alert-error">4자 이상 입력하세요.</div>'; return; }
   if(nw!==cf){ al.innerHTML='<div class="alert alert-error">새 비밀번호가 일치하지 않습니다.</div>'; return; }
-  const idx=DB.teachers.findIndex(t=>t.id===ME.id);
-  if(idx>-1){ DB.teachers[idx].pw=nw; ME.pw=nw; saveDB(); }
+  al.innerHTML='<div class="alert alert-info">확인 중...</div>';
+  let res;
+  if (ME.isNonHome) {
+    res = await SAMIL_API.changeNonHomeTeacherPw({ id: ME.id, name: ME.name, pw: cur, newPw: nw });
+  } else {
+    res = await SAMIL_API.changeTeacherPw({
+      dept:ME.dept, grade:ME.grade, cls:ME.cls, name:ME.name, year:ME.year, pw:cur, newPw:nw
+    });
+  }
+  if(!res.success){ al.innerHTML=`<div class="alert alert-error">${res.error||'오류'}</div>`; return; }
+  ME.pw=nw;
+  sessionStorage.setItem('samilTeacherME', JSON.stringify(ME));
   al.innerHTML='<div class="alert alert-success">✅ 변경되었습니다.</div>';
   setTimeout(closePwModal, 1200);
 }
@@ -1136,31 +1362,40 @@ function renderRecommend(){
 
 // 세션 자동 로그인
 window.addEventListener('DOMContentLoaded', async ()=>{
-  // 학과 드롭다운 채우기
-  try{
-    const deptsRes = await SAMIL_API.getDepts();
-    const sel = document.getElementById('l-dept');
-    if(deptsRes.success && deptsRes.data.length){
-      deptsRes.data.forEach(d=>{
-        const o=document.createElement('option'); o.value=d.name; o.textContent=d.name; sel.appendChild(o);
-      });
-    }
-  }catch(e){}
+  const sel = document.getElementById('l-dept');
+  const deptInputStyle = 'width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none';
 
+  // ── 세션 자동 로그인 먼저 체크 (getDepts 전에) ──
   const savedME = sessionStorage.getItem('samilTeacherME');
   if(savedME){
     try{
       ME = JSON.parse(savedME);
       if(ME){
+        document.getElementById('loginScreen').style.display='none';
         document.getElementById('topNav').style.display='flex';
         document.getElementById('appLayout').style.display='flex';
-        document.getElementById('navTeacherInfo').innerHTML =
-          `<strong>${ME.name}</strong> 선생님 | ${ME.dept} ${ME.grade}학년 ${ME.cls}반`;
+        document.getElementById('navTeacherInfo').innerHTML = ME.isNonHome
+          ? `<strong>${ME.name}</strong> 선생님 | 비담임교사`
+          : `<strong>${ME.name}</strong> 선생님 | ${ME.dept} ${ME.grade}학년 ${ME.cls}반`;
         await loadTeacherData();
         init();
         return;
       }
     }catch(e){}
+  }
+
+  // ── 로그인 화면: 학과 드롭다운 채우기 ──
+  try{
+    const deptsRes = await SAMIL_API.getDepts();
+    if(deptsRes.success && deptsRes.data.length){
+      deptsRes.data.forEach(d=>{
+        const o=document.createElement('option'); o.value=d.name; o.textContent=d.name; sel.appendChild(o);
+      });
+    } else {
+      sel.parentElement.innerHTML=`<label style="display:block;font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:5px">학과</label><input id="l-dept" placeholder="학과명 입력 (예: 반도체과)" style="${deptInputStyle}">`;
+    }
+  }catch(e){
+    sel.parentElement.innerHTML=`<label style="display:block;font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:5px">학과</label><input id="l-dept" placeholder="학과명 입력 (예: 반도체과)" style="${deptInputStyle}">`;
   }
   document.getElementById('loginScreen').style.display='flex';
 });
@@ -1172,8 +1407,21 @@ async function loadTeacherData(){
       SAMIL_API.getStudents({ teacherId: ME.id }),
       SAMIL_API.getJobs(true),
     ]);
-    if(studRes.success) DB.students = studRes.data;
-    if(jobsRes.success) DB.jobs     = jobsRes.data;
+    if(studRes.success){
+      // Sheets를 단일 소스로 사용 — middle은 Code.gs 미배포 시 localStorage값 보존
+      const prevStudents = DB.students || [];
+      DB.students = studRes.data.map(s => {
+        const prev = prevStudents.find(x => String(x.id) === String(s.id));
+        return {
+          ...s,
+          id    : String(s.id),
+          grade : String(s.grade),
+          cls   : String(s.cls),
+          middle: s.middle || (prev && prev.middle) || '',
+        };
+      });
+    }
+    if(jobsRes.success) DB.jobs = jobsRes.data;
     saveDB();
   }catch(e){ console.warn('Sheets 학생 데이터 로드 실패:', e); }
 }
