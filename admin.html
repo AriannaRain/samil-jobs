@@ -1009,8 +1009,8 @@ async function loadFromSheets() {
 // ══════════════════════════════════════════════
 function renderAll() {
   const yr = currentYear;
-  document.getElementById('clsYear').textContent = yr + '년';
-  document.getElementById('tcYear').textContent  = yr + '년';
+  document.getElementById('clsYear').textContent = yr;
+  document.getElementById('tcYear').textContent  = yr;
   document.getElementById('dash-year').textContent = yr;
   const deptLabel = document.getElementById('deptYearLabel');
   if (deptLabel) deptLabel.textContent = `(${yr}년)`;
@@ -1307,7 +1307,7 @@ function renderNonHomeTeachers() {
   const yr   = currentYear;
   const list = getYearData(yr).nonHomeTeachers || [];
   const ntcYrEl = document.getElementById('ntcYear');
-  if (ntcYrEl) ntcYrEl.textContent = yr + '년';
+  if (ntcYrEl) ntcYrEl.textContent = yr;
   el.innerHTML = list.length
     ? list.map((t, i) => `<tr>
         <td><strong>${t.name}</strong></td>
